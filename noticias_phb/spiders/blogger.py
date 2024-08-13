@@ -1,20 +1,29 @@
 from scrapy import Spider
 from scrapy.http.response.html import HtmlResponse
 
+from noticias_phb.items import PostItem
+
 
 class BloggerSpider(Spider):
 
     def parse(self, response: HtmlResponse):
         for post in response.css('.post.hentry'):
+            item = PostItem()
+
             title, *_ = post.xpath('./h3[@class="post-title entry-title"]/a')
+            item['title'] = title.root.text
+            item['link'] = title.attrib['href']
+            
             content, *_ = post.xpath('./div[@class="post-body entry-content"]')
+            item['content'] = content.root.text_content()
+
             image, *_ = content.xpath('.//img')
-            yield {
-                "title": title.root.text,
-                "image": image.attrib['src'],
-                "conten": content.root.text_content(),
-                "link": title.attrib['href']
-            }
+            item['image'] = image.attrib['src']
+
+            posted_at, *_ = post.xpath('.//abbr[@class="published"]')
+            item['posted_at'] = posted_at.attrib['title']
+
+            yield item
 
 
 class BlogDoPessoaSpider(BloggerSpider):
