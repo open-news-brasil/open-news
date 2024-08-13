@@ -7,10 +7,10 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = "folha"
+BOT_NAME = "noticias_phb"
 
-SPIDER_MODULES = ["folha.spiders"]
-NEWSPIDER_MODULE = "folha.spiders"
+SPIDER_MODULES = ["noticias_phb.spiders"]
+NEWSPIDER_MODULE = "noticias_phb.spiders"
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
@@ -45,13 +45,13 @@ ROBOTSTXT_OBEY = True
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 #SPIDER_MIDDLEWARES = {
-#    "folha.middlewares.FolhaSpiderMiddleware": 543,
+#    "noticias_phb.middlewares.FolhaSpiderMiddleware": 543,
 #}
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #DOWNLOADER_MIDDLEWARES = {
-#    "folha.middlewares.FolhaDownloaderMiddleware": 543,
+#    "noticias_phb.middlewares.FolhaDownloaderMiddleware": 543,
 #}
 
 # Enable or disable extensions
@@ -63,7 +63,7 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 #ITEM_PIPELINES = {
-#    "folha.pipelines.FolhaPipeline": 300,
+#    "noticias_phb.pipelines.FolhaPipeline": 300,
 #}
 
 # Enable and configure the AutoThrottle extension (disabled by default)

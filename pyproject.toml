@@ -8,6 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 scrapy = "^2.11.2"
+taskipy = "^1.13.0"
 
 
 [tool.poetry.group.dev.dependencies]
