@@ -6,6 +6,7 @@ from os import getenv
 from urllib.parse import urlparse
 
 from pysondb import PysonDB
+from thefuzz.process import extractOne
 from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
 from pyrogram import Client, utils
@@ -28,13 +29,37 @@ class JsonPipeline:
     @property
     def current_scrapped(self) -> list[dict]:
         return list(self.db.get_all().values())
+    
+    @property
+    def current_scrapped_links(self) -> list[str]:
+        return [
+            link
+            for value in self.current_scrapped
+            if (link := value.get('link'))
+        ]
+    
+    @property
+    def current_scrapped_titles(self) -> list[str]:
+        return [
+            title.lower()
+            for value in self.current_scrapped
+            if (title := value.get('title'))
+        ]
 
 
 class DuplicatedItemsPipeline(JsonPipeline):
 
+    def has_equivalent_title(self, title: str) -> bool:
+        _, ratio = extractOne(title.lower(), self.current_scrapped_titles)
+        return ratio >= 80
+
     def process_item(self, item: PostItem, spider: BloggerSpider) -> PostItem:
         adapter = ItemAdapter(item)
-        if adapter.asdict() in self.current_scrapped:
+        link = adapter.get('link')
+        title = adapter.get('title')
+        if link in self.current_scrapped_links:
+            raise DropItem(item)
+        elif self.has_equivalent_title(title):
             raise DropItem(item)
         return item
 
