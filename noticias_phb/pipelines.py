@@ -6,7 +6,7 @@ from os import getenv
 from urllib.parse import urlparse
 
 from pysondb import PysonDB
-from thefuzz.process import extractOne
+from thefuzz.fuzz import partial_ratio
 from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
 from pyrogram import Client, utils
@@ -50,8 +50,10 @@ class JsonPipeline:
 class DuplicatedItemsPipeline(JsonPipeline):
 
     def has_equivalent_title(self, title: str) -> bool:
-        _, ratio = extractOne(title.lower(), self.current_scrapped_titles)
-        return ratio >= 80
+        for scrapped in self.current_scrapped_titles:
+            if partial_ratio(title.lower(), scrapped) >= 80:
+                return True
+        return False
 
     def process_item(self, item: PostItem, spider: BloggerSpider) -> PostItem:
         adapter = ItemAdapter(item)
