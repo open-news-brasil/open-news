@@ -68,7 +68,7 @@ class DuplicatedItemsPipeline(JsonPipeline):
 
 class SendToTelegramPipeline(JsonPipeline):
     chat_id = int(getenv('TELEGRAM_CHAT_ID', '0'))
-    max_content_size = 900
+    max_content_size = 790
     telegram = Client(
         name='noticias_phb_bot',
         api_id=getenv('TELEGRAM_API_ID', ''),
