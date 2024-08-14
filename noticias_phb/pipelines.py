@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 from pysondb import PysonDB
 from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
-from pyrogram import Client
+from pyrogram import Client, utils
 from pyrogram.enums import ParseMode
 from noticias_phb.items import PostItem
 from noticias_phb.spiders.blogger import BloggerSpider
@@ -38,7 +38,7 @@ class DuplicatedItemsPipeline(JsonPipeline):
 
 
 class SendToTelegramPipeline(JsonPipeline):
-    chat_id = int(getenv('TELEGRAM_CHAT_ID_DEV', '0'))
+    chat_id = int(getenv('TELEGRAM_CHAT_ID', '0'))
     max_content_size = 1000
     telegram = Client(
         name='noticias_phb_bot',
@@ -49,6 +49,16 @@ class SendToTelegramPipeline(JsonPipeline):
 
     def lines(self, lines_list: list[str]) -> str:
         return '\n\n'.join(lines_list)
+    
+    @staticmethod
+    def get_peer_type_new(peer_id: int) -> str:
+        peer_id_str = str(peer_id)
+        if not peer_id_str.startswith("-"):
+            return "user"
+        elif peer_id_str.startswith("-100"):
+            return "channel"
+        else:
+            return "chat"
 
     def caption(self, item: ItemAdapter) -> str:
         title = item.get('title', '').strip()
@@ -74,6 +84,7 @@ class SendToTelegramPipeline(JsonPipeline):
     async def process_item(self, item: PostItem, spider: BloggerSpider) -> PostItem:
         adapter = ItemAdapter(item)
         if not self.telegram.is_connected:
+            utils.get_peer_type = self.get_peer_type_new
             await self.telegram.connect()
         await self.telegram.send_photo(
             chat_id=self.chat_id,
