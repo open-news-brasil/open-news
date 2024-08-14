@@ -12,6 +12,9 @@ BOT_NAME = "noticias_phb"
 SPIDER_MODULES = ["noticias_phb.spiders"]
 NEWSPIDER_MODULE = "noticias_phb.spiders"
 
+OUTPUT_PATH = "data"
+DATE_FORMAT = '%Y-%m-%d'
+
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = "folha (+http://www.yourdomain.com)"
@@ -62,9 +65,10 @@ ROBOTSTXT_OBEY = True
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    "noticias_phb.pipelines.FolhaPipeline": 300,
-#}
+ITEM_PIPELINES = {
+   "noticias_phb.pipelines.DuplicatedItemsPipeline": 100,
+   "noticias_phb.pipelines.AppendItemsPipeline": 200,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html

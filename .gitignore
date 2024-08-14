@@ -204,3 +204,4 @@ Temporary Items
 
 # Project
 data
+*.session*
