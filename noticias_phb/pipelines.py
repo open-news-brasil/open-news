@@ -1,3 +1,5 @@
+import asyncio
+
 from datetime import date
 from pathlib import Path
 from os import getenv
@@ -39,7 +41,7 @@ class DuplicatedItemsPipeline(JsonPipeline):
 
 class SendToTelegramPipeline(JsonPipeline):
     chat_id = int(getenv('TELEGRAM_CHAT_ID', '0'))
-    max_content_size = 1000
+    max_content_size = 900
     telegram = Client(
         name='noticias_phb_bot',
         api_id=getenv('TELEGRAM_API_ID', ''),
@@ -92,6 +94,7 @@ class SendToTelegramPipeline(JsonPipeline):
             caption=self.caption(adapter),
             parse_mode=ParseMode.MARKDOWN
         )
+        await asyncio.sleep(30)
         return item
 
 
