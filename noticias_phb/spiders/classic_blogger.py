@@ -1,3 +1,4 @@
+from contextlib import suppress
 from datetime import date, datetime
 
 from scrapy import Spider
@@ -39,8 +40,12 @@ class ClassicBloggerSpider(Spider):
             content, *_ = post.xpath('./div[@class="post-body entry-content"]')
             item['content'] = content.root.text_content()
 
-            image, *_ = content.xpath('.//img')
-            item['image'] = image.attrib['src']
+            try:
+                image, *_ = content.xpath('.//img')
+                item['image'] = image.attrib['src']
+            
+            except ValueError:
+                item['image'] = None
 
             posted_at, *_ = post.xpath('.//abbr[@class="published"]')
             item['posted_at'] = posted_at.attrib['title']

@@ -27,22 +27,30 @@ class ModernBloggerSpider(Spider):
         post = response.css('.hentry')
         item = PostItem()
         
-        with suppress(ValueError):
-            title, *_ = post.xpath('.//h1[contains(@class, "post-title"]')
-            item['title'] = title.root.text
-            item['link'] = response.url
-            
-            content, *_ = post.xpath('.//div[contains(@class, "post-body")]')
-            item['content'] = content.root.text_content()
+        title, *_ = post.xpath('.//h1[contains(@class, "post-title")]')
+        item['title'] = title.root.text
+        item['link'] = response.url
+        
+        content, *_ = post.xpath('.//div[contains(@class, "post-body")]')
+        item['content'] = content.root.text_content()
 
+        try:
             image, *_ = content.xpath('.//img')
             item['image'] = image.attrib['src']
+        
+        except ValueError:
+            item['image'] = None
 
+        try:
             posted_at, *_ = post.xpath('.//abbr[@class="published"]')
             item['posted_at'] = posted_at.attrib['title']
 
-            if datetime.fromisoformat(item['posted_at']).date() == self.today:
-                yield item
+        except ValueError:
+            posted_at, *_ = post.xpath('.//*[contains(@class, "published")]')
+            item['posted_at'] = posted_at.attrib['datetime']
+
+        if datetime.fromisoformat(item['posted_at']).date() == self.today:
+            yield item
 
 
     def parse(self, response: HtmlResponse):

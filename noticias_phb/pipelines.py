@@ -1,4 +1,4 @@
-import asyncio
+import time
 
 from datetime import date
 from pathlib import Path
@@ -11,6 +11,7 @@ from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
 from pyrogram import Client, utils
 from pyrogram.enums import ParseMode
+from pyrogram.errors import FloodWait
 from noticias_phb.items import PostItem
 from noticias_phb.settings import OUTPUT_PATH, DATE_FORMAT
 
@@ -47,10 +48,14 @@ class JsonPipeline:
 
 
 class DuplicatedItemsPipeline(JsonPipeline):
+    items: list[ItemAdapter] = []
 
     def has_equivalent_title(self, title: str) -> bool:
         for scrapped in self.current_scrapped_titles:
             if partial_ratio(title.lower(), scrapped) >= 80:
+                return True
+        for item in self.items:
+            if partial_ratio(title.lower(), item.get('title', '').lower()) >= 80:
                 return True
         return False
 
@@ -62,12 +67,14 @@ class DuplicatedItemsPipeline(JsonPipeline):
             raise DropItem(item)
         elif self.has_equivalent_title(title):
             raise DropItem(item)
+        self.items.append(item)
         return item
 
 
 class SendToTelegramPipeline(JsonPipeline):
     chat_id = int(getenv('TELEGRAM_CHAT_ID', '0'))
     max_content_size = 790
+    need_wait = False
     telegram = Client(
         name='noticias_phb_bot',
         api_id=getenv('TELEGRAM_API_ID', ''),
@@ -110,18 +117,44 @@ class SendToTelegramPipeline(JsonPipeline):
             ])
     
     async def process_item(self, item: PostItem, spider) -> PostItem:
+        if self.need_wait:
+            # Blocking wait to avoid flood exception
+            time.sleep(30)
+        
         adapter = ItemAdapter(item)
-        if not self.telegram.is_connected:
-            utils.get_peer_type = self.get_peer_type_new
-            await self.telegram.connect()
-        await self.telegram.send_photo(
-            chat_id=self.chat_id,
-            photo=adapter.get('image'),
-            caption=self.caption(adapter),
-            parse_mode=ParseMode.MARKDOWN
-        )
-        await asyncio.sleep(30)
-        return item
+        message_text = self.caption(adapter)
+        utils.get_peer_type = self.get_peer_type_new
+        
+        try:
+            if not self.telegram.is_connected:
+                await self.telegram.connect()
+                await self.telegram.authorize()
+
+            if image := adapter.get('image'):
+                await self.telegram.send_photo(
+                    chat_id=self.chat_id,
+                    photo=image,
+                    caption=message_text,
+                    parse_mode=ParseMode.MARKDOWN
+                )
+            
+            else:
+                await self.telegram.send_message(
+                    chat_id=self.chat_id,
+                    text=message_text,
+                    parse_mode=ParseMode.MARKDOWN
+                )
+        
+        except FloodWait as exc:
+            print(f'FloodWait - Waiting {exc.value} seconds!')
+            # Blocking wait to avoid flood exception
+            time.sleep(exc.value)
+            return await self.process_item(item, spider)
+        
+        finally:
+            self.telegram.disconnect()
+            self.need_wait = True
+            return item
 
 
 class AppendItemsPipeline(JsonPipeline):

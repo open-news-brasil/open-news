@@ -205,3 +205,4 @@ Temporary Items
 # Project
 data
 *.session*
+run.sh
