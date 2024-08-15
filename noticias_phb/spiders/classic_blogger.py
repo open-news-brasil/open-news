@@ -6,9 +6,9 @@ from scrapy.http.response.html import HtmlResponse
 from noticias_phb.items import PostItem
 
 
-class BloggerSpider(Spider):
+class ClassicBloggerSpider(Spider):
     today = date.today()
-    name = "blogger"
+    name = "classic_blogger"
     
     allowed_domains = [
         "carlsonpessoa.blogspot.com",

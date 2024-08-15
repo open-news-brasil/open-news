@@ -12,7 +12,6 @@ from scrapy.exceptions import DropItem
 from pyrogram import Client, utils
 from pyrogram.enums import ParseMode
 from noticias_phb.items import PostItem
-from noticias_phb.spiders.blogger import BloggerSpider
 from noticias_phb.settings import OUTPUT_PATH, DATE_FORMAT
 
 
@@ -55,7 +54,7 @@ class DuplicatedItemsPipeline(JsonPipeline):
                 return True
         return False
 
-    def process_item(self, item: PostItem, spider: BloggerSpider) -> PostItem:
+    def process_item(self, item: PostItem, spider) -> PostItem:
         adapter = ItemAdapter(item)
         link = adapter.get('link')
         title = adapter.get('title')
@@ -110,7 +109,7 @@ class SendToTelegramPipeline(JsonPipeline):
                 f'**Fonte:** __[{domain}]({link})__'
             ])
     
-    async def process_item(self, item: PostItem, spider: BloggerSpider) -> PostItem:
+    async def process_item(self, item: PostItem, spider) -> PostItem:
         adapter = ItemAdapter(item)
         if not self.telegram.is_connected:
             utils.get_peer_type = self.get_peer_type_new
@@ -127,7 +126,7 @@ class SendToTelegramPipeline(JsonPipeline):
 
 class AppendItemsPipeline(JsonPipeline):
     
-    def process_item(self, item: PostItem, spider: BloggerSpider) -> PostItem:
+    def process_item(self, item: PostItem, spider) -> PostItem:
         adapter = ItemAdapter(item)
         if adapter.asdict() not in self.current_scrapped:
             self.db.add(adapter.asdict())
