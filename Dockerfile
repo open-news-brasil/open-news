@@ -1,6 +1,5 @@
 FROM --platform=amd64 python:3.11-alpine3.20
 
-COPY scrapy.cfg /srv
 COPY pyproject.toml /srv
 COPY noticias_phb /srv/noticias_phb
 
@@ -11,7 +10,7 @@ RUN apk update && \
     pip install --upgrade pip poetry && \
     poetry install --without dev
 
-ENV CRON_EXPRESSION '*/30 * * * *'
+ENV CRON_EXPRESSION '*/10 * * * *'
 ENV CRON_COMMAND 'cd /srv; poetry run task scrape'
 
 RUN echo "$CRON_EXPRESSION $CRON_COMMAND" >> /var/spool/cron/crontabs/root
