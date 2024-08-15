@@ -23,7 +23,7 @@ ruff = "^0.5.7"
 [tool.taskipy.tasks]
 lint = { cmd = "ruff format && ruff check --fix", help = "Format and lint the code" }
 check = { cmd = "ruff format --check && ruff check && mypy .", help = "Check code issues" }
-scrape = { cmd = "scrapy crawl blogger", help = "Run news crawler" }
+scrape = { cmd = "python -m noticias_phb", help = "Run news crawler" }
 
 [tool.mypy]
 follow_imports = "skip"
