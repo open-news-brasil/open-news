@@ -6,10 +6,12 @@ from os import getenv
 from urllib.parse import urlparse
 
 from pysondb import PysonDB
+from emoji import emojize
 from thefuzz.fuzz import partial_ratio
 from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
 from pyrogram import Client, utils
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.enums import ParseMode
 from pyrogram.errors import FloodWait
 from noticias_phb.items import PostItem
@@ -74,7 +76,6 @@ class DuplicatedItemsPipeline(JsonPipeline):
 class SendToTelegramPipeline(JsonPipeline):
     chat_id = int(getenv('TELEGRAM_CHAT_ID', '0'))
     max_content_size = 790
-    need_wait = False
     telegram = Client(
         name='noticias_phb_bot',
         api_id=getenv('TELEGRAM_API_ID', ''),
@@ -95,32 +96,37 @@ class SendToTelegramPipeline(JsonPipeline):
         else:
             return "chat"
 
-    def caption(self, item: ItemAdapter) -> str:
-        title = item.get('title', '').strip()
-        link = item.get('link')
+    def caption(self, adapter: ItemAdapter) -> str:
+        title = adapter.get('title', '').strip()
+        link = adapter.get('link')
         domain = urlparse(link).netloc
-        content = item.get('content', '').strip().strip('\n')
+        content = adapter.get('content', '').strip().strip('\n')
+        emoji = emojize(':newspaper:')
 
         if len(content) > self.max_content_size:
-            content = f'{content[:self.max_content_size]}...'
+            content = f'{content[:self.max_content_size]}[...]'
 
         if content.replace('\n', '') == '':
             return self.lines([
-                f'**{title}**',
-                f'**Fonte:** __[{domain}]({link})__'
+                f'__[{domain}]({link})__',
+                f'{emoji} **{title}**',
             ])
         
         return self.lines([
-                f'**{title}**',
+                f'__[{domain}]({link})__',
+                f'{emoji} **{title}**',
                 content,
-                f'**Fonte:** __[{domain}]({link})__'
             ])
     
-    async def process_item(self, item: PostItem, spider) -> PostItem:
-        if self.need_wait:
-            # Blocking wait to avoid flood exception
-            time.sleep(30)
-        
+    def buttons(self, adapter: ItemAdapter):
+        return InlineKeyboardMarkup([[
+            InlineKeyboardButton(
+                text="Ler matéria no site",
+                url=adapter.get('link')
+            )
+        ]])
+    
+    async def process_item(self, item: PostItem, spider) -> PostItem:        
         adapter = ItemAdapter(item)
         message_text = self.caption(adapter)
         utils.get_peer_type = self.get_peer_type_new
@@ -135,14 +141,16 @@ class SendToTelegramPipeline(JsonPipeline):
                     chat_id=self.chat_id,
                     photo=image,
                     caption=message_text,
-                    parse_mode=ParseMode.MARKDOWN
+                    parse_mode=ParseMode.MARKDOWN,
+                    reply_markup=self.buttons(adapter)
                 )
             
             else:
                 await self.telegram.send_message(
                     chat_id=self.chat_id,
                     text=message_text,
-                    parse_mode=ParseMode.MARKDOWN
+                    parse_mode=ParseMode.MARKDOWN,
+                    reply_markup=self.buttons(adapter)
                 )
         
         except FloodWait as exc:
@@ -152,8 +160,7 @@ class SendToTelegramPipeline(JsonPipeline):
             return await self.process_item(item, spider)
         
         finally:
-            self.telegram.disconnect()
-            self.need_wait = True
+            await self.telegram.disconnect()
             return item
 
 

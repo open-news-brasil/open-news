@@ -15,10 +15,12 @@ tgcrypto = "^1.2.5"
 pysondb-v2 = "^2.2.0"
 thefuzz = "^0.22.1"
 taskipy = "^1.13.0"
+emoji = "^2.12.1"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.11.1"
 ruff = "^0.5.7"
+ipython = "^8.26.0"
 
 [tool.taskipy.tasks]
 lint = { cmd = "ruff format && ruff check --fix", help = "Format and lint the code" }
