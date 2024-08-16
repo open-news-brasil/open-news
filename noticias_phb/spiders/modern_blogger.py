@@ -1,4 +1,3 @@
-from contextlib import suppress
 from datetime import date, datetime
 
 from scrapy import Spider

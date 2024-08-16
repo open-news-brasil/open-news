@@ -1,79 +1,19 @@
 import time
 
-from datetime import date
-from pathlib import Path
 from os import getenv
 from urllib.parse import urlparse
 
-from pysondb import PysonDB
 from emoji import emojize
-from thefuzz.fuzz import partial_ratio
 from itemadapter import ItemAdapter
-from scrapy.exceptions import DropItem
 from pyrogram import Client, utils
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.enums import ParseMode
 from pyrogram.errors import FloodWait
 from noticias_phb.items import PostItem
-from noticias_phb.settings import OUTPUT_PATH, DATE_FORMAT
+from noticias_phb.pipelines import BasePipeline
 
 
-class JsonPipeline:
-    today = date.today().strftime(DATE_FORMAT)
-    scrapping_path = Path(__file__).parent.parent / f'{OUTPUT_PATH}'
-    today_scrapping_path = scrapping_path / f'{today}.json'
-
-    @property
-    def db(self) -> PysonDB:
-        self.scrapping_path.mkdir(exist_ok=True)
-        return PysonDB(str(self.today_scrapping_path))
-    
-    @property
-    def current_scrapped(self) -> list[dict]:
-        return list(self.db.get_all().values())
-    
-    @property
-    def current_scrapped_links(self) -> list[str]:
-        return [
-            link
-            for value in self.current_scrapped
-            if (link := value.get('link'))
-        ]
-    
-    @property
-    def current_scrapped_titles(self) -> list[str]:
-        return [
-            title.lower()
-            for value in self.current_scrapped
-            if (title := value.get('title'))
-        ]
-
-
-class DuplicatedItemsPipeline(JsonPipeline):
-    items: list[ItemAdapter] = []
-
-    def has_equivalent_title(self, title: str) -> bool:
-        for scrapped in self.current_scrapped_titles:
-            if partial_ratio(title.lower(), scrapped) >= 80:
-                return True
-        for item in self.items:
-            if partial_ratio(title.lower(), item.get('title', '').lower()) >= 80:
-                return True
-        return False
-
-    def process_item(self, item: PostItem, spider) -> PostItem:
-        adapter = ItemAdapter(item)
-        link = adapter.get('link')
-        title = adapter.get('title')
-        if link in self.current_scrapped_links:
-            raise DropItem(item)
-        elif self.has_equivalent_title(title):
-            raise DropItem(item)
-        self.items.append(item)
-        return item
-
-
-class SendToTelegramPipeline(JsonPipeline):
+class SendToTelegramPipeline(BasePipeline):
     chat_id = int(getenv('TELEGRAM_CHAT_ID', '0'))
     max_content_size = 790
     telegram = Client(
@@ -155,19 +95,9 @@ class SendToTelegramPipeline(JsonPipeline):
         
         except FloodWait as exc:
             print(f'FloodWait - Waiting {exc.value} seconds!')
-            # Blocking wait to avoid flood exception
-            time.sleep(exc.value)
+            time.sleep(exc.value) # Blocking wait to avoid flood exception
             return await self.process_item(item, spider)
         
         finally:
             await self.telegram.disconnect()
             return item
-
-
-class AppendItemsPipeline(JsonPipeline):
-    
-    def process_item(self, item: PostItem, spider) -> PostItem:
-        adapter = ItemAdapter(item)
-        if adapter.asdict() not in self.current_scrapped:
-            self.db.add(adapter.asdict())
-        return item
