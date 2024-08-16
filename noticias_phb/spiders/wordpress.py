@@ -3,8 +3,16 @@ from datetime import date, datetime
 from scrapy import Spider
 from scrapy.http.response.html import HtmlResponse
 
-from noticias_phb.items import PostItem
+from noticias_phb.items import NewsItem, NewsLoader
 
+
+class WordpressNewsLoader(NewsLoader):
+    @staticmethod
+    def content_in(values: list[str] | None):
+        for line in NewsLoader.content_in(values):
+            if 'compartilhe isso:' in line.lower():
+                break
+            yield line
 
 class WordpressSpider(Spider):
     today = date.today()
@@ -17,29 +25,19 @@ class WordpressSpider(Spider):
         "https://blogdobsilva.com.br/"
     ]
 
-
     def parse(self, response: HtmlResponse):
         for post in response.xpath('//article[contains(@id, "post")]'):
-            item = PostItem()
-
-            title, *_ = post.xpath('.//h2[contains(@class, "title")]/a')
-            item['title'] = title.root.text
-            item['link'] = title.attrib['href']
+            news = WordpressNewsLoader(NewsItem(), post)
             
-            content, *_ = post.xpath('.//div[contains(@class, "content")]')
-            item['content'] = content.root.text_content()
+            news.add_xpath('title', './/h2[contains(@class, "title")]//a/text()')
+            news.add_xpath('link', './/h2[contains(@class, "title")]//a/@href')
+            news.add_xpath('content', './/div[contains(@class, "content")]//*/text()')
+            news.add_xpath('images', './/img/@src')
+            news.add_xpath('video', './/iframe[contains(@src, "youtube")]/@src')
+            news.add_xpath('posted_at', './/time[contains(@class, "published")]/@datetime')
 
-            try:
-                image, *_ = content.xpath('.//img')
-                item['image'] = image.attrib['src']
-            
-            except ValueError:
-                item['image'] = None
-
-            posted_at, *_ = post.xpath('.//time[contains(@class, "published")]')
-            item['posted_at'] = posted_at.attrib['datetime']
-
-            if datetime.fromisoformat(item['posted_at']).date() != self.today:
+            posted_at = news.get_output_value('posted_at')
+            if datetime.fromisoformat(posted_at).date() != self.today:
                 continue
 
-            yield item
+            yield news.load_item()

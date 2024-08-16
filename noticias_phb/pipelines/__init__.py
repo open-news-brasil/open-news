@@ -1,20 +1,21 @@
 from abc import ABC
 from datetime import date
-from pathlib import Path
+from logging import getLogger
 
 from pysondb import PysonDB
-from noticias_phb.settings import OUTPUT_PATH, DATE_FORMAT
+from noticias_phb.settings import OUTPUT_PATH, DATE_FORMAT, PROJECT_ROOT
 
 
-class BasePipeline(ABC):
+class BaseNewsPipeline(ABC):
+    logger = getLogger('pipeline')
     today = date.today().strftime(DATE_FORMAT)
-    scrapping_path = Path(__file__).parent.parent / f'{OUTPUT_PATH}'
-    today_scrapping_path = scrapping_path / f'{today}.json'
+    data_folder_path = PROJECT_ROOT / f'{OUTPUT_PATH}'
+    data_path = data_folder_path / 'news.json'
 
     @property
     def db(self) -> PysonDB:
-        self.scrapping_path.mkdir(exist_ok=True)
-        return PysonDB(str(self.today_scrapping_path))
+        self.data_folder_path.mkdir(exist_ok=True)
+        return PysonDB(str(self.data_path))
     
     @property
     def current_scrapped(self) -> list[dict]:

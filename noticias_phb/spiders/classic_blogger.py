@@ -3,7 +3,7 @@ from datetime import date, datetime
 from scrapy import Spider
 from scrapy.http.response.html import HtmlResponse
 
-from noticias_phb.items import PostItem
+from noticias_phb.items import NewsLoader, NewsItem
 
 
 class ClassicBloggerSpider(Spider):
@@ -27,29 +27,18 @@ class ClassicBloggerSpider(Spider):
         "https://www.plantaoparnaiba24horas.com.br/"
     ]
 
-
     def parse(self, response: HtmlResponse):
         for post in response.css('.post.hentry'):
-            item = PostItem()
+            news = NewsLoader(NewsItem(), post)
+            news.add_xpath('title', './h3[@class="post-title entry-title"]/a/text()')
+            news.add_xpath('link', './h3[@class="post-title entry-title"]/a/@href')
+            news.add_xpath('content', './div[@class="post-body entry-content"]//*/text()')
+            news.add_xpath('images', './/img/@src')
+            news.add_xpath('video', './/iframe[contains(@src, "youtube")]/@src')
+            news.add_xpath('posted_at', './/abbr[@class="published"]/@title')
 
-            title, *_ = post.xpath('./h3[@class="post-title entry-title"]/a')
-            item['title'] = title.root.text
-            item['link'] = title.attrib['href']
-            
-            content, *_ = post.xpath('./div[@class="post-body entry-content"]')
-            item['content'] = content.root.text_content()
-
-            try:
-                image, *_ = content.xpath('.//img')
-                item['image'] = image.attrib['src']
-            
-            except ValueError:
-                item['image'] = None
-
-            posted_at, *_ = post.xpath('.//abbr[@class="published"]')
-            item['posted_at'] = posted_at.attrib['title']
-
-            if datetime.fromisoformat(item['posted_at']).date() != self.today:
+            posted_at = news.get_output_value('posted_at')
+            if datetime.fromisoformat(posted_at).date() != self.today:
                 continue
 
-            yield item
+            yield news.load_item()
