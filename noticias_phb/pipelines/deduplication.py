@@ -13,14 +13,14 @@ class DuplicatedItemsPipeline(BaseNewsPipeline):
             if partial_ratio(title.lower(), scrapped) >= 80:
                 return True
         for item in self.items:
-            if partial_ratio(title.lower(), item.get('title', '').lower()) >= 70:
+            if partial_ratio(title.lower(), item.get("title", "").lower()) >= 70:
                 return True
         return False
 
     def process_item(self, item: NewsItem, spider) -> NewsItem:
         adapter = ItemAdapter(item)
-        link = adapter.get('link')
-        title = adapter.get('title')
+        link = adapter.get("link")
+        title = adapter.get("title")
         if link in self.current_scrapped_links:
             raise DropItem(item)
         elif self.has_equivalent_title(title):

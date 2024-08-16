@@ -4,7 +4,6 @@ from noticias_phb.pipelines import BaseNewsPipeline
 
 
 class SaveDataPipeline(BaseNewsPipeline):
-
     def to_dict(self, adapter: ItemAdapter) -> dict:
         item_keys = adapter.item.fields.keys()
         current_keys = adapter.item.keys()
@@ -13,7 +12,7 @@ class SaveDataPipeline(BaseNewsPipeline):
             if key not in current_keys:
                 complete_dict[key] = None
         return complete_dict
-    
+
     def process_item(self, item: NewsItem, spider) -> NewsItem:
         adapter = ItemAdapter(item)
         item_dict = self.to_dict(adapter)

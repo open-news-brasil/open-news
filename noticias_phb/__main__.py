@@ -6,10 +6,10 @@ from noticias_phb.spiders import modern_blogger, classic_blogger, wordpress
 spiders = [
     classic_blogger.ClassicBloggerSpider,
     modern_blogger.ModernBloggerSpider,
-    wordpress.WordpressSpider
+    wordpress.WordpressSpider,
 ]
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     settings = get_project_settings()
     process = CrawlerProcess(settings)
     for spider in spiders:

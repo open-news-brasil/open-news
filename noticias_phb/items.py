@@ -7,7 +7,6 @@ from itemloaders.processors import TakeFirst, MapCompose, Identity
 from noticias_phb.utils import clean_string
 
 
-
 class NewsItem(Item):
     title = Field()
     images = Field()
@@ -28,12 +27,12 @@ class NewsLoader(ItemLoader):
     def images_in(values: list[str] | None):
         if values is None:
             return []
-        
-        keystrings = ['icon', 'demo-image', 'agenciabrasil']
-        regex = '|'.join(keystrings)
+
+        keystrings = ["icon", "demo-image", "agenciabrasil"]
+        regex = "|".join(keystrings)
 
         for value in values:
-            if not value.startswith('http'):
+            if not value.startswith("http"):
                 continue
             if re.search(regex, value) is None:
                 yield value
@@ -42,10 +41,10 @@ class NewsLoader(ItemLoader):
     def content_in(values: list[str] | None):
         if values is None:
             return []
-        
-        keystrings = ['foto', 'fonte']
-        regex = '|'.join(keystrings)
-        
+
+        keystrings = ["foto", "fonte"]
+        regex = "|".join(keystrings)
+
         for value in values:
             cleaned_str = clean_string(value)
             caption = re.search(regex, cleaned_str, re.IGNORECASE)
