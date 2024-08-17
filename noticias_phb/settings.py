@@ -1,3 +1,4 @@
+from os import getenv
 from pathlib import Path
 
 
@@ -22,3 +23,15 @@ ITEM_PIPELINES = {
 REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
+
+TELEGRAM_API_ID = getenv("TELEGRAM_API_ID", "")
+TELEGRAM_API_HASH = getenv("TELEGRAM_API_HASH", "")
+TELEGRAM_BOT_TOKEN = getenv("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHAT_ID = int(getenv("TELEGRAM_CHAT_ID", "0"))
+TELEGRAM_MAX_CONTENT_SIZE = 790
+TELEGRAM_OPTIONS = {
+    "name": "noticias_phb_bot",
+    "api_id": TELEGRAM_API_ID,
+    "api_hash": TELEGRAM_API_HASH,
+    "bot_token": TELEGRAM_BOT_TOKEN,
+}

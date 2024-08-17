@@ -1,7 +1,6 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import sleep
-from os import getenv
 from urllib.parse import urlparse, quote_plus
 
 from emoji import emojize
@@ -13,6 +12,11 @@ from pyrogram.errors import FloodWait
 from yt_dlp import YoutubeDL
 from noticias_phb.items import NewsItem
 from noticias_phb.pipelines import BaseNewsPipeline
+from noticias_phb.settings import (
+    TELEGRAM_CHAT_ID,
+    TELEGRAM_MAX_CONTENT_SIZE,
+    TELEGRAM_OPTIONS,
+)
 
 
 # Fixes PEER_ID_INVALID for channels
@@ -28,15 +32,7 @@ def get_peer_type_fixed(peer_id: int) -> str:
 
 
 class SendToTelegramPipeline(BaseNewsPipeline):
-    max_content_size = 790
     emoji = emojize(":newspaper:")
-    chat_id = int(getenv("TELEGRAM_CHAT_ID", "0"))
-    telegram = Client(
-        name="noticias_phb_bot",
-        api_id=getenv("TELEGRAM_API_ID", ""),
-        api_hash=getenv("TELEGRAM_API_HASH", ""),
-        bot_token=getenv("TELEGRAM_BOT_TOKEN", ""),
-    )
 
     def lines(self, lines_list: list[str]) -> str:
         return "\n\n".join(lines_list)
@@ -47,8 +43,8 @@ class SendToTelegramPipeline(BaseNewsPipeline):
 
     def message_content(self, adapter: ItemAdapter) -> str:
         content = " ".join(adapter.get("content"))
-        if len(content) > self.max_content_size:
-            content = content[: self.max_content_size] + " **[...]**"
+        if len(content) > TELEGRAM_MAX_CONTENT_SIZE:
+            content = content[:TELEGRAM_MAX_CONTENT_SIZE] + " **[...]**"
         return content
 
     def message_text(self, adapter: ItemAdapter) -> str:
@@ -95,26 +91,26 @@ class SendToTelegramPipeline(BaseNewsPipeline):
             ]
         )
 
-    async def send_images(self, adapter: ItemAdapter, message: str):
+    async def send_images(self, telegram: Client, adapter: ItemAdapter, message: str):
         images = adapter.get("images")
 
         try:
             if len(images) > 1:
-                await self.telegram.send_media_group(
-                    chat_id=self.chat_id,
+                await telegram.send_media_group(
+                    chat_id=TELEGRAM_CHAT_ID,
                     media=[InputMediaPhoto(img) for img in images[1:]],
                 )
 
         finally:
-            await self.telegram.send_photo(
-                chat_id=self.chat_id,
+            await telegram.send_photo(
+                chat_id=TELEGRAM_CHAT_ID,
                 photo=images[0],
                 caption=message,
                 parse_mode=ParseMode.MARKDOWN,
                 reply_markup=self.buttons(adapter),
             )
 
-    async def send_video(self, adapter: ItemAdapter, message: str):
+    async def send_video(self, telegram: Client, adapter: ItemAdapter, message: str):
         tempdir = TemporaryDirectory()
 
         try:
@@ -124,8 +120,8 @@ class SendToTelegramPipeline(BaseNewsPipeline):
                 ytdl.download(adapter.get("video"))
 
             for file in Path(tempdir.name).iterdir():
-                await self.telegram.send_video(
-                    chat_id=self.chat_id,
+                await telegram.send_video(
+                    chat_id=TELEGRAM_CHAT_ID,
                     video=str(file),
                     caption=message,
                     parse_mode=ParseMode.MARKDOWN,
@@ -133,8 +129,8 @@ class SendToTelegramPipeline(BaseNewsPipeline):
                 )
 
         except Exception:
-            await self.telegram.send_message(
-                chat_id=self.chat_id,
+            await telegram.send_message(
+                chat_id=TELEGRAM_CHAT_ID,
                 text=message,
                 parse_mode=ParseMode.MARKDOWN,
                 reply_markup=self.buttons(adapter),
@@ -148,34 +144,32 @@ class SendToTelegramPipeline(BaseNewsPipeline):
         message_text = self.message_text(adapter)
         utils.get_peer_type = get_peer_type_fixed
 
-        try:
-            if not self.telegram.is_connected:
-                await self.telegram.start()
+        async with Client(**TELEGRAM_OPTIONS) as telegram:
+            try:
+                if adapter.get("video"):
+                    await self.send_video(telegram, adapter, message_text)
+                
+                elif adapter.get("images"):
+                    await self.send_images(telegram, adapter, message_text)
 
-            if adapter.get("images"):
-                await self.send_images(adapter, message_text)
+                else:
+                    await telegram.send_message(
+                        chat_id=TELEGRAM_CHAT_ID,
+                        text=message_text,
+                        parse_mode=ParseMode.MARKDOWN,
+                        reply_markup=self.buttons(adapter),
+                    )
 
-            elif adapter.get("video"):
-                await self.send_video(adapter, message_text)
+            except FloodWait as exc:
+                self.logger.error(
+                    f"FloodWait - Waiting {exc.value} seconds!", exc_info=True
+                )
+                sleep(exc.value)  # Blocking wait to avoid flood exception
+                return await self.process_item(item, spider)
+
+            except Exception as exc:
+                self.logger.critical("Error trying to send message!", exc_info=True)
+                raise exc
 
             else:
-                await self.telegram.send_message(
-                    chat_id=self.chat_id,
-                    text=message_text,
-                    parse_mode=ParseMode.MARKDOWN,
-                    reply_markup=self.buttons(adapter),
-                )
-
-        except FloodWait as exc:
-            print(f"FloodWait - Waiting {exc.value} seconds!")
-            sleep(exc.value)  # Blocking wait to avoid flood exception
-            return await self.process_item(item, spider)
-
-        except Exception as exc:
-            self.logger.critical("Error trying to send message!", exc_info=True)
-            raise exc
-
-        else:
-            if self.telegram.is_connected:
-                await self.telegram.stop()
-            return item
+                return item

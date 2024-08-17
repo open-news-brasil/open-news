@@ -2,6 +2,7 @@ FROM --platform=amd64 python:3.11-alpine3.20
 
 COPY scrapy.cfg /srv
 COPY pyproject.toml /srv
+COPY chat_monitor.py /srv
 COPY noticias_phb /srv/noticias_phb
 
 WORKDIR /srv
