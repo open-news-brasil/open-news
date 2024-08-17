@@ -13,8 +13,8 @@ RUN apk update && \
     pip install --upgrade pip poetry psutil && \
     poetry install --without dev
 
-ENV CRON_EXPRESSION '*/10 * * * *'
-ENV CRON_COMMAND 'cd /srv; poetry run task scrape > /srv/scrape.log 2>&1'
+ENV CRON_EXPRESSION '*/5 * * * *'
+ENV CRON_COMMAND 'cd /srv; poetry run task scrape'
 
 RUN echo "$CRON_EXPRESSION $CRON_COMMAND" >> /var/spool/cron/crontabs/root
 
