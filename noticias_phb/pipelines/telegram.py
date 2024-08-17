@@ -98,8 +98,11 @@ class SendToTelegramPipeline(BaseNewsPipeline):
             if len(images) > 1:
                 await telegram.send_media_group(
                     chat_id=TELEGRAM_CHAT_ID,
-                    media=[InputMediaPhoto(img) for img in images[1:]],
+                    media=[InputMediaPhoto(img) for img in images[1:10]],
                 )
+        
+        except Exception as exc:
+            self.logger.error(str(exc), exc_info=True)
 
         finally:
             await telegram.send_photo(
@@ -161,14 +164,12 @@ class SendToTelegramPipeline(BaseNewsPipeline):
                     )
 
             except FloodWait as exc:
-                self.logger.error(
-                    f"FloodWait - Waiting {exc.value} seconds!", exc_info=True
-                )
+                self.logger.error(str(exc))
                 sleep(exc.value)  # Blocking wait to avoid flood exception
                 return await self.process_item(item, spider)
 
             except Exception as exc:
-                self.logger.critical("Error trying to send message!", exc_info=True)
+                self.logger.critical(str(exc), exc_info=True)
                 raise exc
 
             else:
