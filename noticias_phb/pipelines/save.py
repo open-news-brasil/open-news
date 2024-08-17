@@ -3,7 +3,7 @@ from noticias_phb.items import NewsItem
 from noticias_phb.pipelines import BaseNewsPipeline
 
 
-class SaveDataPipeline(BaseNewsPipeline):
+class SavePipeline(BaseNewsPipeline):
     def to_dict(self, adapter: ItemAdapter) -> dict:
         item_keys = adapter.item.fields.keys()
         current_keys = adapter.item.keys()

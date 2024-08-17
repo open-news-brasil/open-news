@@ -5,7 +5,7 @@ from noticias_phb.items import NewsItem
 from noticias_phb.pipelines import BaseNewsPipeline
 
 
-class DuplicatedItemsPipeline(BaseNewsPipeline):
+class DeduplicationPipeline(BaseNewsPipeline):
     items: list[ItemAdapter] = []
 
     def has_equivalent_title(self, title: str) -> bool:

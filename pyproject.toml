@@ -9,24 +9,28 @@ package-mode = false
 [tool.poetry.dependencies]
 python = "^3.11"
 scrapy = "^2.11.2"
-pyrogram = "^2.0.106"
-tgcrypto = "^1.2.5"
 pysondb-v2 = "^2.2.0"
 thefuzz = "^0.22.1"
 taskipy = "^1.13.0"
 emoji = "^2.12.1"
 yt-dlp = {extras = ["default"], version = "^2024.8.6"}
-uvloop = "^0.20.0"
+telethon = "^1.36.0"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.11.1"
 ruff = "^0.5.7"
 ipython = "^8.26.0"
 
+[tool.taskipy.variables]
+logfile = "noticias_phb.log"
+
 [tool.taskipy.tasks]
-lint = { cmd = "ruff format && ruff check --fix", help = "Format and lint the code" }
-check = { cmd = "ruff format --check && ruff check && mypy .", help = "Check code issues" }
-scrape = { cmd = "python -m noticias_phb", help = "Run news crawler" }
+lint = "ruff format && ruff check --fix"
+check = "ruff format --check && ruff check && mypy ."
+scrape_classic_blogger = "scrapy crawl classic_blogger"
+scrape_modern_blogger = "scrapy crawl modern_blogger"
+scrape_wordpress = "scrapy crawl wordpress"
+scrape = "task scrape_classic_blogger && task scrape_modern_blogger && task scrape_wordpress"
 
 [tool.mypy]
 follow_imports = "skip"
