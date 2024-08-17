@@ -8,7 +8,7 @@ from itemadapter import ItemAdapter
 from pyrogram import Client, utils
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
 from pyrogram.enums import ParseMode
-from pyrogram.errors import FloodWait
+from pyrogram.errors import FloodWait, BadRequest
 from yt_dlp import YoutubeDL
 from noticias_phb.items import NewsItem
 from noticias_phb.pipelines import BaseNewsPipeline
@@ -100,8 +100,11 @@ class SendToTelegramPipeline(BaseNewsPipeline):
                     chat_id=TELEGRAM_CHAT_ID,
                     media=[InputMediaPhoto(img) for img in images[1:10]],
                 )
-        
-        except Exception as exc:
+
+        except FloodWait as exc:
+            raise exc
+
+        except BadRequest as exc:
             self.logger.error(str(exc), exc_info=True)
 
         finally:
@@ -131,7 +134,10 @@ class SendToTelegramPipeline(BaseNewsPipeline):
                     reply_markup=self.buttons(adapter),
                 )
 
-        except Exception:
+        except FloodWait as exc:
+            raise exc
+
+        except BadRequest:
             await telegram.send_message(
                 chat_id=TELEGRAM_CHAT_ID,
                 text=message,
@@ -147,11 +153,11 @@ class SendToTelegramPipeline(BaseNewsPipeline):
         message_text = self.message_text(adapter)
         utils.get_peer_type = get_peer_type_fixed
 
-        async with Client(**TELEGRAM_OPTIONS) as telegram:
-            try:
+        try:
+            async with Client(**TELEGRAM_OPTIONS) as telegram:
                 if adapter.get("video"):
                     await self.send_video(telegram, adapter, message_text)
-                
+
                 elif adapter.get("images"):
                     await self.send_images(telegram, adapter, message_text)
 
@@ -163,14 +169,14 @@ class SendToTelegramPipeline(BaseNewsPipeline):
                         reply_markup=self.buttons(adapter),
                     )
 
-            except FloodWait as exc:
-                self.logger.error(str(exc))
-                sleep(exc.value)  # Blocking wait to avoid flood exception
-                return await self.process_item(item, spider)
+        except FloodWait as exc:
+            self.logger.error(str(exc), exc_info=True)
+            sleep(exc.value)  # Blocking wait to avoid flood exception
+            return await self.process_item(item, spider)
 
-            except Exception as exc:
-                self.logger.critical(str(exc), exc_info=True)
-                raise exc
+        except Exception as exc:
+            self.logger.critical(str(exc), exc_info=True)
+            raise exc
 
-            else:
-                return item
+        else:
+            return item

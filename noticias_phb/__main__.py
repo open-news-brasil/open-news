@@ -20,7 +20,7 @@ spiders = [
 
 if __name__ == "__main__":
     if lock_file.exists():
-        logger.warning('Skipping because already exists an lock file!')
+        logger.warning("Skipping because already exists an lock file!")
 
     else:
         uvloop.install()
