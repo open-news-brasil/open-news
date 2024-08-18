@@ -1,6 +1,6 @@
 # Notícias de Parnaíba
 
-Coleta automatizada das últimas notícias de Parnaíba-PI e região, nos principais sites da região. A coleta roda a cada dez minutos e é publicada no canal do Telegram [@noticias_phb](t.me/noticias_phb), pelo bot [@noticias_phb_bot](t.me/noticias_phb_bot) ou alguma de suas réplicas de segurança.
+Coleta automatizada das últimas notícias de Parnaíba-PI e região, nos principais sites da região. A coleta roda a cada dez minutos e é publicada no canal do Telegram [@noticias_phb](https://t.me/noticias_phb), pelo bot [@noticias_phb_bot](https://t.me/noticias_phb_bot) ou alguma de suas réplicas de segurança.
 
 ### Portais monitorados
 
