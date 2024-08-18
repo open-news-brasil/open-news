@@ -10,7 +10,7 @@ class DeduplicationPipeline(BaseNewsPipeline):
     items: list[ItemAdapter] = []
 
     def setup(self):
-        self.ALLOWED_SIMILARITY = 70
+        self.ALLOWED_SIMILARITY = 0.7
 
     def has_equivalent_title(self, title: str) -> bool:
         for scrapped in self.current_scrapped_titles:
@@ -34,9 +34,12 @@ class DeduplicationPipeline(BaseNewsPipeline):
         adapter = ItemAdapter(item)
         link = adapter.get("link")
         title: str = adapter.get("title")
+        content: str = "".join(adapter.get("content"))
         if link in self.current_scrapped_links:
             raise DropItem(item)
         elif self.has_equivalent_title(title):
+            raise DropItem(item)
+        elif self.has_too_much_similarity(content):
             raise DropItem(item)
         self.items.append(adapter)
         return item
