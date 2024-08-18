@@ -18,7 +18,7 @@ from noticias_phb.settings import (
     TELEGRAM_API_ID,
     TELEGRAM_BOT_TOKENS,
     TELEGRAM_CHAT_ID,
-    TELEGRAM_MAX_CONTENT_SIZE
+    TELEGRAM_MAX_CONTENT_SIZE,
 )
 
 
@@ -43,7 +43,7 @@ class TelegramPipeline(BaseNewsPipeline):
             "api_id": TELEGRAM_API_ID,
             "api_hash": TELEGRAM_API_HASH,
             "in_memory": True,
-            "bot_token": token
+            "bot_token": token,
         }
 
     def lines(self, lines_list: list[str]) -> str:
