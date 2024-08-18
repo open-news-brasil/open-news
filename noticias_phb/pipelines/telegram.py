@@ -2,38 +2,49 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import sleep
 from urllib.parse import urlparse, quote_plus
+from uuid import uuid4
 
 from emoji import emojize
 from itemadapter import ItemAdapter
-from telethon import TelegramClient, Button
-from telethon.sessions import MemorySession
-from telethon.errors import RPCError, FloodWaitError
+from pyrogram import Client, utils
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
+from pyrogram.enums import ParseMode
+from pyrogram.errors import FloodWait, BadRequest
 from yt_dlp import YoutubeDL
 from noticias_phb.items import NewsItem
 from noticias_phb.pipelines import BaseNewsPipeline
 from noticias_phb.settings import (
     TELEGRAM_API_HASH,
     TELEGRAM_API_ID,
+    TELEGRAM_BOT_TOKENS,
     TELEGRAM_CHAT_ID,
     TELEGRAM_MAX_CONTENT_SIZE,
-    TELEGRAM_BOT_TOKENS,
 )
+
+
+# Fixes PEER_ID_INVALID for channels
+# https://github.com/pyrogram/pyrogram/issues/1314#issuecomment-2187830732
+def get_peer_type_fixed(peer_id: int) -> str:
+    peer_id_str = str(peer_id)
+    if not peer_id_str.startswith("-"):
+        return "user"
+    elif peer_id_str.startswith("-100"):
+        return "channel"
+    else:
+        return "chat"
 
 
 class TelegramPipeline(BaseNewsPipeline):
     emoji = emojize(":newspaper:")
 
-    @property
-    def options(self):
+    def options(self, token: str):
         return {
-            "session": MemorySession(),
+            "name": str(uuid4()),
             "api_id": TELEGRAM_API_ID,
             "api_hash": TELEGRAM_API_HASH,
+            "in_memory": True,
+            "bot_token": token,
         }
-
-    async def telegram_client(self, token: str) -> TelegramClient:
-        client = TelegramClient(**self.options)
-        return await client.start(bot_token=token)
 
     def lines(self, lines_list: list[str]) -> str:
         return "\n\n".join(lines_list)
@@ -77,40 +88,47 @@ class TelegramPipeline(BaseNewsPipeline):
         return "https://api.whatsapp.com/send?text=" + quote_plus(message)
 
     def buttons(self, adapter: ItemAdapter):
-        return [
-            [Button.url("Acessar publicação", adapter.get("link"))],
-            [Button.url("Compartilhar no Whatsapp", self.whatsapp_link(adapter))],
-        ]
+        return InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton(
+                        text="Acessar publicação", url=adapter.get("link")
+                    ),
+                ],
+                [
+                    InlineKeyboardButton(
+                        text="Compartilhar no Whatsapp", url=self.whatsapp_link(adapter)
+                    )
+                ],
+            ]
+        )
 
-    async def send_images(
-        self, telegram: TelegramClient, adapter: ItemAdapter, message: str
-    ):
+    async def send_images(self, telegram: Client, adapter: ItemAdapter, message: str):
         images = adapter.get("images")
 
         try:
             if len(images) > 1:
-                await telegram.send_file(
-                    entity=TELEGRAM_CHAT_ID,
-                    file=images[1:10],
+                await telegram.send_media_group(
+                    chat_id=TELEGRAM_CHAT_ID,
+                    media=[InputMediaPhoto(img) for img in images[1:10]],
                 )
 
-        except FloodWaitError as exc:
+        except FloodWait as exc:
             raise exc
 
-        except RPCError as exc:
+        except BadRequest as exc:
             self.logger.error(str(exc), exc_info=True)
 
         finally:
-            await telegram.send_file(
-                entity=TELEGRAM_CHAT_ID,
-                file=images[0],
+            await telegram.send_photo(
+                chat_id=TELEGRAM_CHAT_ID,
+                photo=images[0],
                 caption=message,
-                buttons=self.buttons(adapter),
+                parse_mode=ParseMode.MARKDOWN,
+                reply_markup=self.buttons(adapter),
             )
 
-    async def send_video(
-        self, telegram: TelegramClient, adapter: ItemAdapter, message: str
-    ):
+    async def send_video(self, telegram: Client, adapter: ItemAdapter, message: str):
         tempdir = TemporaryDirectory()
 
         try:
@@ -120,21 +138,23 @@ class TelegramPipeline(BaseNewsPipeline):
                 ytdl.download(adapter.get("video"))
 
             for file in Path(tempdir.name).iterdir():
-                await telegram.send_file(
-                    entity=TELEGRAM_CHAT_ID,
-                    file=str(file),
+                await telegram.send_video(
+                    chat_id=TELEGRAM_CHAT_ID,
+                    video=str(file),
                     caption=message,
-                    buttons=self.buttons(adapter),
+                    parse_mode=ParseMode.MARKDOWN,
+                    reply_markup=self.buttons(adapter),
                 )
 
-        except FloodWaitError as exc:
+        except FloodWait as exc:
             raise exc
 
-        except RPCError:
+        except BadRequest:
             await telegram.send_message(
-                entity=TELEGRAM_CHAT_ID,
-                message=message,
-                buttons=self.buttons(adapter),
+                chat_id=TELEGRAM_CHAT_ID,
+                text=message,
+                parse_mode=ParseMode.MARKDOWN,
+                reply_markup=self.buttons(adapter),
             )
 
         finally:
@@ -143,10 +163,12 @@ class TelegramPipeline(BaseNewsPipeline):
     async def process_item(self, item: NewsItem, spider) -> NewsItem:
         adapter = ItemAdapter(item)
         message_text = self.message_text(adapter)
+        utils.get_peer_type = get_peer_type_fixed
 
         for index, token in enumerate(TELEGRAM_BOT_TOKENS):
             try:
-                telegram = await self.telegram_client(token)
+                telegram = Client(**self.options(token))
+                await telegram.start()
 
                 sleep(5)  # Blocking to avoid to FloodError
                 if adapter.get("video"):
@@ -157,17 +179,17 @@ class TelegramPipeline(BaseNewsPipeline):
 
                 else:
                     await telegram.send_message(
-                        entity=TELEGRAM_CHAT_ID,
-                        message=message_text,
-                        link_preview=False,
-                        buttons=self.buttons(adapter),
+                        chat_id=TELEGRAM_CHAT_ID,
+                        text=message_text,
+                        parse_mode=ParseMode.MARKDOWN,
+                        reply_markup=self.buttons(adapter),
                     )
 
-            except FloodWaitError as exc:
+            except FloodWait as exc:
                 self.logger.warning(str(exc))
                 if (index + 1) < len(TELEGRAM_BOT_TOKENS):
                     continue
-                sleep(exc.seconds)  # Blocking to stop thread
+                sleep(exc.value)  # Blocking to stop thread
                 raise exc
 
             except Exception as exc:
