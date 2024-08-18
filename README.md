@@ -6,12 +6,12 @@ Coleta automatizada das últimas notícias de Parnaíba-PI e região, nos princi
 
 - [carlsonpessoa.blogspot.com](https://carlsonpessoa.blogspot.com)
 - [portaldocatita.blogspot.com](https://portaldocatita.blogspot.com)
-- [jornaldaparnaiba.com](https://jornaldaparnaiba.com)
+- [jornaldaparnaiba.com](https://www.jornaldaparnaiba.com)
 - [phbemnota.com](https://phbemnota.com)
 - [clickparnaiba.blogspot.com](https://clickparnaiba.blogspot.com)
-- [plantaoparnaiba24horas.com.br](https://plantaoparnaiba24horas.com.br)
-- [portaldoaguia.com.br](https://portaldoaguia.com.br)
-- [portalphb.com.br](https://portalphb.com.br)
+- [plantaoparnaiba24horas.com.br](https://www.plantaoparnaiba24horas.com.br)
+- [portaldoaguia.com.br](https://www.portaldoaguia.com.br)
+- [portalphb.com.br](https://www.portalphb.com.br)
 - [portallitoralnoticias.com.br](https://portallitoralnoticias.com.br)
 - [blogdobsilva.com.br](https://blogdobsilva.com.br)
 

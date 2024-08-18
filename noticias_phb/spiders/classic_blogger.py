@@ -13,17 +13,17 @@ class ClassicBloggerSpider(Spider):
     allowed_domains = [
         "carlsonpessoa.blogspot.com",
         "portaldocatita.blogspot.com",
+        "clickparnaiba.blogspot.com",
         "jornaldaparnaiba.com",
         "phbemnota.com",
-        "clickparnaiba.blogspot.com",
         "plantaoparnaiba24horas.com.br",
     ]
     start_urls = [
         "https://carlsonpessoa.blogspot.com/",
         "https://portaldocatita.blogspot.com/",
+        "https://clickparnaiba.blogspot.com/",
         "https://www.jornaldaparnaiba.com/",
         "https://www.phbemnota.com/",
-        "https://clickparnaiba.blogspot.com/",
         "https://www.plantaoparnaiba24horas.com.br/",
     ]
 
