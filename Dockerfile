@@ -7,7 +7,7 @@ COPY noticias_phb /srv/noticias_phb
 WORKDIR /srv
 
 RUN apk update && \
-    apk add g++ python3-dev musl-dev linux-headers alpine-conf && \
+    apk add gcc g++ python3-dev musl-dev linux-headers alpine-conf && \
     setup-timezone /America/Sao_Paulo && \
     pip install --upgrade pip poetry psutil && \
     poetry install --without dev
