@@ -15,13 +15,13 @@ taskipy = "^1.13.0"
 emoji = "^2.12.1"
 yt-dlp = {extras = ["default"], version = "^2024.8.6"}
 telethon = "^1.36.0"
-pytest = "^8.3.2"
 scikit-learn = "^1.5.1"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.11.1"
 ruff = "^0.5.7"
 ipython = "^8.26.0"
+pytest = "^8.3.2"
 
 [tool.taskipy.variables]
 logfile = "noticias_phb.log"
@@ -40,3 +40,8 @@ follow_imports = "skip"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["tests.py", "test_*.py"]
+pythonpath = ["."]

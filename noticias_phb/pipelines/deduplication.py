@@ -34,12 +34,9 @@ class DeduplicationPipeline(BaseNewsPipeline):
         adapter = ItemAdapter(item)
         link = adapter.get("link")
         title: str = adapter.get("title")
-        content: str = adapter.get("content")
         if link in self.current_scrapped_links:
             raise DropItem(item)
         elif self.has_equivalent_title(title):
-            raise DropItem(item)
-        elif self.has_too_much_similarity(content):
             raise DropItem(item)
         self.items.append(adapter)
         return item
