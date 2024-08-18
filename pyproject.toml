@@ -14,7 +14,8 @@ thefuzz = "^0.22.1"
 taskipy = "^1.13.0"
 emoji = "^2.12.1"
 yt-dlp = {extras = ["default"], version = "^2024.8.6"}
-telethon = "^1.36.0"
+pyrogram = "^2.0.106"
+tgcrypto = "^1.2.5"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.11.1"
