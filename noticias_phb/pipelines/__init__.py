@@ -32,3 +32,11 @@ class BaseNewsPipeline(ABC):
             for value in self.current_scrapped
             if (title := value.get("title"))
         ]
+
+    @property
+    def current_scrapped_content(self) -> list[str]:
+        return [
+            content.lower()
+            for value in self.current_scrapped
+            if (content := value.get("content"))
+        ]
