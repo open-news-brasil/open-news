@@ -1,12 +1,16 @@
 from thefuzz.fuzz import partial_ratio
 from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
+from noticias_phb.classifier.classifier import NewsClassifier
 from noticias_phb.items import NewsItem
 from noticias_phb.pipelines import BaseNewsPipeline
 
 
 class DeduplicationPipeline(BaseNewsPipeline):
     items: list[ItemAdapter] = []
+
+    def setup(self):
+        self.ALLOWED_SIMILARITY = 70
 
     def has_equivalent_title(self, title: str) -> bool:
         for scrapped in self.current_scrapped_titles:
@@ -17,13 +21,25 @@ class DeduplicationPipeline(BaseNewsPipeline):
                 return True
         return False
 
+    def has_too_much_similarity(self,content: str):
+        for scrapped in self.current_scrapped_content:
+            if NewsClassifier.news_content_similarity(content.lower(),scrapped) >= self.ALLOWED_SIMILARITY:
+                return True
+        for item in self.items:
+            if NewsClassifier.news_content_similarity(content.lower(),item.get("title", "").lower()) >= self.ALLOWED_SIMILARITY:
+                return True
+        return False
+
     def process_item(self, item: NewsItem, spider) -> NewsItem:
         adapter = ItemAdapter(item)
         link = adapter.get("link")
-        title = adapter.get("title")
+        title: str = adapter.get("title") or ""
+        content: str = adapter.get("content") or ""
         if link in self.current_scrapped_links:
             raise DropItem(item)
         elif self.has_equivalent_title(title):
             raise DropItem(item)
-        self.items.append(item)
+        elif self.has_too_much_similarity(content):
+            raise DropItem(item)
+        self.items.append(adapter)
         return item
