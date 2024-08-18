@@ -19,16 +19,5 @@ class BaseNewsPipeline(ABC):
 
     @property
     def current_scrapped(self) -> list[dict]:
-        return list(self.db.get_all().values())
-
-    @property
-    def current_scrapped_links(self) -> list[str]:
-        return [link for value in self.current_scrapped if (link := value.get("link"))]
-
-    @property
-    def current_scrapped_titles(self) -> list[str]:
-        return [
-            title.lower()
-            for value in self.current_scrapped
-            if (title := value.get("title"))
-        ]
+        return list(self.db.get_all().values())[::-1]
+    

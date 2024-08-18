@@ -35,7 +35,7 @@ def get_peer_type_fixed(peer_id: int) -> str:
 
 
 class TelegramPipeline(BaseNewsPipeline):
-    emoji = emojize(":newspaper:")
+    emoji = emojize(":page_facing_up:")
 
     def options(self, token: str):
         return {

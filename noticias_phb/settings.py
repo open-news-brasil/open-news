@@ -3,6 +3,7 @@ from pathlib import Path
 
 
 BOT_NAME = "noticias_phb"
+DEBUG = bool(getenv('DEBUG'))
 
 SPIDER_MODULES = ["noticias_phb.spiders"]
 NEWSPIDER_MODULE = "noticias_phb.spiders"
@@ -13,7 +14,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 MODULE_ROOT = PROJECT_ROOT / BOT_NAME
 
 LOG_FILE = "noticias_phb.log"
-LOG_LEVEL = "ERROR"
+LOG_LEVEL = "DEBUG" if DEBUG else "ERROR"
 LOG_FILE_APPEND = True
 
 CLOSESPIDER_TIMEOUT = 240

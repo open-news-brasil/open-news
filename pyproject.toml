@@ -10,10 +10,10 @@ package-mode = false
 python = "^3.11"
 scrapy = "^2.11.2"
 pysondb-v2 = "^2.2.0"
-thefuzz = "^0.22.1"
 taskipy = "^1.13.0"
 emoji = "^2.12.1"
 yt-dlp = {extras = ["default"], version = "^2024.8.6"}
+scikit-learn = "^1.5.1"
 pyrogram = "^2.0.106"
 tgcrypto = "^1.2.5"
 
