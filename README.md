@@ -22,7 +22,7 @@ Coleta automatizada das últimas notícias de Parnaíba-PI e região, nos princi
 Faça o build da imagem Docker.
 
 ```shell
-docker build --no-cache -t noticias_phb:latest .
+make build
 ```
 
 Depois, execute ela com as variáveis de ambiente necessárias.
