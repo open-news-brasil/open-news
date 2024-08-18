@@ -33,8 +33,8 @@ class DeduplicationPipeline(BaseNewsPipeline):
     def process_item(self, item: NewsItem, spider) -> NewsItem:
         adapter = ItemAdapter(item)
         link = adapter.get("link")
-        title: str = adapter.get("title") or ""
-        content: str = adapter.get("content") or ""
+        title: str = adapter.get("title")
+        content: str = adapter.get("content")
         if link in self.current_scrapped_links:
             raise DropItem(item)
         elif self.has_equivalent_title(title):
