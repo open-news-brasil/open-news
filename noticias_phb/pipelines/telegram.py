@@ -112,18 +112,21 @@ class TelegramPipeline(BaseNewsPipeline):
                     chat_id=TELEGRAM_CHAT_ID,
                     media=[InputMediaPhoto(img) for img in images[1:10]],
                 )
-
-        except FloodWait as exc:
-            raise exc
-
-        except BadRequest as exc:
-            self.logger.error(str(exc), exc_info=True)
-
-        finally:
             await telegram.send_photo(
                 chat_id=TELEGRAM_CHAT_ID,
                 photo=images[0],
                 caption=message,
+                parse_mode=ParseMode.MARKDOWN,
+                reply_markup=self.buttons(adapter),
+            )
+
+        except FloodWait as exc:
+            raise exc
+
+        except BadRequest:
+            await telegram.send_message(
+                chat_id=TELEGRAM_CHAT_ID,
+                text=message,
                 parse_mode=ParseMode.MARKDOWN,
                 reply_markup=self.buttons(adapter),
             )
