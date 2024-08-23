@@ -15,9 +15,9 @@ class WordpressNewsLoader(NewsLoader):
             yield line
 
 
-class WordpressSpider(Spider):
+class BlogDoSilvaSpider(Spider):
     today = date.today()
-    name = "wordpress"
+    name = "blog_do_silva"
 
     allowed_domains = [
         "blogdobsilva.com.br",

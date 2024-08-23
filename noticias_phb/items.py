@@ -28,7 +28,7 @@ class NewsLoader(ItemLoader):
         if values is None:
             return []
 
-        keystrings = ["icon", "demo-image", "agenciabrasil"]
+        keystrings = ["icon", "demo-image", "agenciabrasil", "gravatar"]
         regex = "|".join(keystrings)
 
         for value in values:
