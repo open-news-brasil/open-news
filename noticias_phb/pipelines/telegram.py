@@ -81,8 +81,8 @@ class TelegramPipeline(BaseNewsPipeline):
                 self.message_title(adapter).replace("**", "*"),
                 "*Fonte:* " + adapter.get("link"),
                 self.message_content(adapter).replace("**", "*"),
-                emojize(":mobile_phone:") + " Esta e outra notícias, você pode "
-                "receber no seu Telegram! Entre agora no canal t.me/noticias_phb",
+                emojize(":mobile_phone:") + " Entre agora no canal t.me/s/noticias_phb"
+                "e receba notícias como esta em primeira mão no seu Telegram!",
             ]
         )
         return "https://api.whatsapp.com/send?text=" + quote_plus(message)
@@ -111,6 +111,7 @@ class TelegramPipeline(BaseNewsPipeline):
                 await telegram.send_media_group(
                     chat_id=TELEGRAM_CHAT_ID,
                     media=[InputMediaPhoto(img) for img in images[1:10]],
+                    disable_notification=True
                 )
             await telegram.send_photo(
                 chat_id=TELEGRAM_CHAT_ID,
@@ -129,6 +130,7 @@ class TelegramPipeline(BaseNewsPipeline):
                 text=message,
                 parse_mode=ParseMode.MARKDOWN,
                 reply_markup=self.buttons(adapter),
+                disable_web_page_preview=True
             )
 
     async def send_video(self, telegram: Client, adapter: ItemAdapter, message: str):
@@ -158,6 +160,7 @@ class TelegramPipeline(BaseNewsPipeline):
                 text=message,
                 parse_mode=ParseMode.MARKDOWN,
                 reply_markup=self.buttons(adapter),
+                disable_web_page_preview=True
             )
 
         finally:
@@ -186,6 +189,7 @@ class TelegramPipeline(BaseNewsPipeline):
                         text=message_text,
                         parse_mode=ParseMode.MARKDOWN,
                         reply_markup=self.buttons(adapter),
+                        disable_web_page_preview=True
                     )
 
             except FloodWait as exc:
