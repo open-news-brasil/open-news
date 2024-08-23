@@ -14,6 +14,7 @@ Coleta automatizada das últimas notícias de Parnaíba-PI e região, nos princi
 - [portalphb.com.br](https://www.portalphb.com.br)
 - [portallitoralnoticias.com.br](https://portallitoralnoticias.com.br)
 - [blogdobsilva.com.br](https://blogdobsilva.com.br)
+- [portalcostanorte.com](https://portalcostanorte.com)
 
 > Gostaria que algum outro portal fosse monitorado? Submeta uma issue [aqui](https://github.com/jjpaulo2/noticias-phb/issues).
 
