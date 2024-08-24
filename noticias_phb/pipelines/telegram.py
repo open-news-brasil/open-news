@@ -1,5 +1,3 @@
-from pathlib import Path
-from tempfile import TemporaryDirectory
 from time import sleep
 from urllib.parse import urlparse, quote_plus
 from uuid import uuid4
@@ -10,7 +8,6 @@ from pyrogram import Client, utils
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
 from pyrogram.enums import ParseMode
 from pyrogram.errors import FloodWait, BadRequest
-from yt_dlp import YoutubeDL
 from noticias_phb.items import NewsItem
 from noticias_phb.pipelines import BaseNewsPipeline
 from noticias_phb.settings import (
@@ -35,8 +32,6 @@ def get_peer_type_fixed(peer_id: int) -> str:
 
 
 class TelegramPipeline(BaseNewsPipeline):
-    emoji = emojize(":page_facing_up:")
-
     def options(self, token: str):
         return {
             "name": str(uuid4()),
@@ -49,9 +44,14 @@ class TelegramPipeline(BaseNewsPipeline):
     def lines(self, lines_list: list[str]) -> str:
         return "\n\n".join(lines_list)
 
+    def emoji(self, adapter: ItemAdapter) -> str:
+        if adapter.get("video"):
+            return emojize(":video_camera:")
+        return emojize(":page_facing_up:")
+
     def message_title(self, adapter: ItemAdapter) -> str:
         title = adapter.get("title", "").strip()
-        return f"{self.emoji} **{title}**"
+        return f"{self.emoji(adapter)} **{title}**"
 
     def message_content(self, adapter: ItemAdapter) -> str:
         content = " ".join(adapter.get("content"))
@@ -82,26 +82,32 @@ class TelegramPipeline(BaseNewsPipeline):
                 "*Fonte:* " + adapter.get("link"),
                 self.message_content(adapter).replace("**", "*"),
                 emojize(":mobile_phone:") + " Entre agora no canal t.me/s/noticias_phb"
-                "e receba notícias como esta em primeira mão no seu Telegram!",
+                " e receba notícias como esta em primeira mão no seu Telegram!",
             ]
         )
         return "https://api.whatsapp.com/send?text=" + quote_plus(message)
 
     def buttons(self, adapter: ItemAdapter):
-        return InlineKeyboardMarkup(
+        buttons_list = [
             [
+                InlineKeyboardButton(
+                    text="Acessar publicação", url=adapter.get("link")
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text="Compartilhar no Whatsapp", url=self.whatsapp_link(adapter)
+                )
+            ],
+        ]
+        if video := adapter.get("video"):
+            buttons_list.insert(
+                0,
                 [
-                    InlineKeyboardButton(
-                        text="Acessar publicação", url=adapter.get("link")
-                    ),
+                    InlineKeyboardButton(text="Assistir no YouTube", url=video),
                 ],
-                [
-                    InlineKeyboardButton(
-                        text="Compartilhar no Whatsapp", url=self.whatsapp_link(adapter)
-                    )
-                ],
-            ]
-        )
+            )
+        return InlineKeyboardMarkup(buttons_list)
 
     async def send_images(self, telegram: Client, adapter: ItemAdapter, message: str):
         images = adapter.get("images")
@@ -111,7 +117,7 @@ class TelegramPipeline(BaseNewsPipeline):
                 await telegram.send_media_group(
                     chat_id=TELEGRAM_CHAT_ID,
                     media=[InputMediaPhoto(img) for img in images[1:10]],
-                    disable_notification=True
+                    disable_notification=True,
                 )
             await telegram.send_photo(
                 chat_id=TELEGRAM_CHAT_ID,
@@ -130,41 +136,8 @@ class TelegramPipeline(BaseNewsPipeline):
                 text=message,
                 parse_mode=ParseMode.MARKDOWN,
                 reply_markup=self.buttons(adapter),
-                disable_web_page_preview=True
+                disable_web_page_preview=True,
             )
-
-    async def send_video(self, telegram: Client, adapter: ItemAdapter, message: str):
-        tempdir = TemporaryDirectory()
-
-        try:
-            filepath = tempdir.name + "/%(id)s.%(ext)s"
-            options = {"format": "best[height<=360]", "outtmpl": filepath}
-            with YoutubeDL(options) as ytdl:
-                ytdl.download(adapter.get("video"))
-
-            for file in Path(tempdir.name).iterdir():
-                await telegram.send_video(
-                    chat_id=TELEGRAM_CHAT_ID,
-                    video=str(file),
-                    caption=message,
-                    parse_mode=ParseMode.MARKDOWN,
-                    reply_markup=self.buttons(adapter),
-                )
-
-        except FloodWait as exc:
-            raise exc
-
-        except BadRequest:
-            await telegram.send_message(
-                chat_id=TELEGRAM_CHAT_ID,
-                text=message,
-                parse_mode=ParseMode.MARKDOWN,
-                reply_markup=self.buttons(adapter),
-                disable_web_page_preview=True
-            )
-
-        finally:
-            tempdir.cleanup()
 
     async def process_item(self, item: NewsItem, spider) -> NewsItem:
         adapter = ItemAdapter(item)
@@ -177,10 +150,7 @@ class TelegramPipeline(BaseNewsPipeline):
                 await telegram.start()
 
                 sleep(5)  # Blocking to avoid to FloodError
-                if adapter.get("video"):
-                    await self.send_video(telegram, adapter, message_text)
-
-                elif adapter.get("images"):
+                if adapter.get("images"):
                     await self.send_images(telegram, adapter, message_text)
 
                 else:
@@ -189,7 +159,7 @@ class TelegramPipeline(BaseNewsPipeline):
                         text=message_text,
                         parse_mode=ParseMode.MARKDOWN,
                         reply_markup=self.buttons(adapter),
-                        disable_web_page_preview=True
+                        disable_web_page_preview=True,
                     )
 
             except FloodWait as exc:

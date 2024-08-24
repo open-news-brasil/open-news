@@ -207,3 +207,4 @@ Temporary Items
 # Project
 data
 *.session*
+*cookies.txt

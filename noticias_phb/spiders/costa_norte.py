@@ -12,7 +12,7 @@ class CostaNorteNewsLoader(NewsLoader):
         if values is None:
             return []
         for value in values:
-            dt_object = datetime.strptime(value, '%d/%m/%Y')
+            dt_object = datetime.strptime(value, "%d/%m/%Y")
             yield str(dt_object.isoformat())
 
 
@@ -20,12 +20,8 @@ class CostaNorteSpider(Spider):
     today = date.today()
     name = "costa_norte"
 
-    allowed_domains = [
-        "portalcostanorte.com"
-    ]
-    start_urls = [
-        "https://portalcostanorte.com/"
-    ]
+    allowed_domains = ["portalcostanorte.com"]
+    start_urls = ["https://portalcostanorte.com/"]
 
     def parse_post(self, response: HtmlResponse):
         post = response.css(".hentry")[0]
@@ -34,7 +30,9 @@ class CostaNorteSpider(Spider):
         news.add_value("link", response.url)
         news.add_xpath("title", './/a[contains(@class, "post-title")]/h1/text()')
         news.add_xpath("content", './/div[contains(@class, "post-content")]//p/text()')
-        news.add_xpath("images", './/div[contains(@class, "post-type-content")]//img/@src')
+        news.add_xpath(
+            "images", './/div[contains(@class, "post-type-content")]//img/@src'
+        )
         news.add_xpath("images", './/div[contains(@class, "post-content")]//img/@src')
         news.add_xpath("video", './/iframe[contains(@src, "youtube")]/@src')
         news.add_xpath("posted_at", './/a[@class="post-date"]/b/text()')
@@ -45,5 +43,5 @@ class CostaNorteSpider(Spider):
 
     def parse(self, response: HtmlResponse):
         for post in response.css(".hentry"):
-            if link := post.xpath('.//a[./h2]/@href').extract_first():
+            if link := post.xpath(".//a[./h2]/@href").extract_first():
                 yield response.follow(link, self.parse_post)

@@ -17,12 +17,15 @@ class DeduplicationPipeline(BaseNewsPipeline):
             dense_vectors = vectors.toarray()
             similarity = cosine_similarity(dense_vectors[0:1], dense_vectors[1:2])[0][0]
             return similarity
-        
+
         except ValueError:
             return 0
-    
+
     def is_similar(self, text1: str, text2: str) -> bool:
-        return self.get_text_similatiry(text1.lower(), text2.lower()) >= self.allowed_similarity
+        return (
+            self.get_text_similatiry(text1.lower(), text2.lower())
+            >= self.allowed_similarity
+        )
 
     def has_equivalent_item(self, adapter: ItemAdapter) -> bool:
         link = adapter.get("link")
@@ -30,21 +33,21 @@ class DeduplicationPipeline(BaseNewsPipeline):
         content = " ".join(adapter.get("content"))
 
         for scrapped in self.current_scrapped:
-            if self.is_similar(link, scrapped['link']):
+            if self.is_similar(link, scrapped["link"]):
                 return True
-            elif self.is_similar(title, scrapped['title']):
+            elif self.is_similar(title, scrapped["title"]):
                 return True
-            elif self.is_similar(content, ' '.join(scrapped['content'])):
+            elif self.is_similar(content, " ".join(scrapped["content"])):
                 return True
-            
+
         for item in self.items:
-            if self.is_similar(link, item.get('link', '')):
+            if self.is_similar(link, item.get("link", "")):
                 return True
-            elif self.is_similar(title, item.get('title', '')):
+            elif self.is_similar(title, item.get("title", "")):
                 return True
-            elif self.is_similar(content, ' '.join(item.get('content', []))):
+            elif self.is_similar(content, " ".join(item.get("content", []))):
                 return True
-            
+
         return False
 
     def process_item(self, item: NewsItem, spider) -> NewsItem:

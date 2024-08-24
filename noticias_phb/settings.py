@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 BOT_NAME = "noticias_phb"
-DEBUG = bool(getenv('DEBUG'))
+DEBUG = bool(getenv("DEBUG"))
 
 SPIDER_MODULES = ["noticias_phb.spiders"]
 NEWSPIDER_MODULE = "noticias_phb.spiders"
@@ -17,7 +17,7 @@ LOG_FILE = "noticias_phb.log"
 LOG_LEVEL = "DEBUG" if DEBUG else "ERROR"
 LOG_FILE_APPEND = True
 
-CLOSESPIDER_TIMEOUT = 4*60
+CLOSESPIDER_TIMEOUT = 4 * 60
 CONCURRENT_ITEMS = 10
 CONCURRENT_REQUESTS = 10
 

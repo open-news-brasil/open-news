@@ -24,6 +24,13 @@ class NewsLoader(ItemLoader):
     content_out = Identity()
 
     @staticmethod
+    def video_in(values: list[str] | None):
+        if values is None:
+            return None
+        for value in values:
+            yield value.removeprefix("//")
+
+    @staticmethod
     def images_in(values: list[str] | None):
         if values is None:
             return []

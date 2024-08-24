@@ -20,4 +20,3 @@ class BaseNewsPipeline(ABC):
     @property
     def current_scrapped(self) -> list[dict]:
         return list(self.db.get_all().values())[::-1]
-    

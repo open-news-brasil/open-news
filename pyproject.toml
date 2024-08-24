@@ -12,7 +12,6 @@ scrapy = "^2.11.2"
 pysondb-v2 = "^2.2.0"
 taskipy = "^1.13.0"
 emoji = "^2.12.1"
-yt-dlp = {extras = ["default"], version = "^2024.8.6"}
 pyrogram = "^2.0.106"
 tgcrypto = "^1.2.5"
 
