@@ -31,6 +31,9 @@ class CostaNorteSpider(Spider):
         news.add_xpath("title", './/a[contains(@class, "post-title")]/h1/text()')
         news.add_xpath("content", './/div[contains(@class, "post-content")]//p/text()')
         news.add_xpath(
+            "content", './/div[contains(@class, "post-content")]//p/span/text()'
+        )
+        news.add_xpath(
             "images", './/div[contains(@class, "post-type-content")]//img/@src'
         )
         news.add_xpath("images", './/div[contains(@class, "post-content")]//img/@src')
