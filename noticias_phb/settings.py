@@ -1,3 +1,4 @@
+from datetime import timedelta
 from os import getenv
 from pathlib import Path
 
@@ -8,14 +9,16 @@ DEBUG = bool(getenv("DEBUG"))
 SPIDER_MODULES = ["noticias_phb.spiders"]
 NEWSPIDER_MODULE = "noticias_phb.spiders"
 
-OUTPUT_PATH = "data"
-DATE_FORMAT = "%Y-%m-%d"
 PROJECT_ROOT = Path(__file__).parent.parent
 MODULE_ROOT = PROJECT_ROOT / BOT_NAME
 
 LOG_FILE = "noticias_phb.log"
 LOG_LEVEL = "DEBUG" if DEBUG else "ERROR"
 LOG_FILE_APPEND = True
+
+OUTPUT_PATH = PROJECT_ROOT / "data"
+OUTPUT_FILE = OUTPUT_PATH / "news.json"
+OUTPUT_MAX_DAYS_PERSISTENCE = timedelta(6)
 
 CLOSESPIDER_TIMEOUT = 4 * 60
 CONCURRENT_ITEMS = 10
