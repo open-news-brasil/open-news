@@ -2,8 +2,8 @@ from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from noticias_phb.items import NewsItem
-from noticias_phb.pipelines import BaseNewsPipeline
+from open_news.items import NewsItem
+from open_news.pipelines import BaseNewsPipeline
 
 
 class DeduplicationPipeline(BaseNewsPipeline):

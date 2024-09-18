@@ -1,5 +1,5 @@
 REQUIREMENTS = requirements.txt
-IMAGE_NAME = noticias_phb
+IMAGE_NAME = open-news-brasil
 
 
 requirements:

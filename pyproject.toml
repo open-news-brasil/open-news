@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "noticias-phb"
+name = "open-news-brasil"
 version = "0.1.0"
-description = ""
+description = "Scrappers de notícias do Brasil"
 authors = ["João Paulo Carvalho <jjpaulo2@protonmail.com>"]
 readme = "README.md"
 package-mode = false

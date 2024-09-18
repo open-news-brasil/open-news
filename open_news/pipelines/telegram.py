@@ -8,9 +8,10 @@ from pyrogram import Client, utils
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
 from pyrogram.enums import ParseMode
 from pyrogram.errors import FloodWait, BadRequest
-from noticias_phb.items import NewsItem
-from noticias_phb.pipelines import BaseNewsPipeline
-from noticias_phb.settings import (
+from open_news.items import NewsItem
+from open_news.pipelines import BaseNewsPipeline
+from open_news.settings import (
+    CHANNEL_LINK,
     TELEGRAM_API_HASH,
     TELEGRAM_API_ID,
     TELEGRAM_BOT_TOKENS,
@@ -81,7 +82,7 @@ class TelegramPipeline(BaseNewsPipeline):
                 self.message_title(adapter).replace("**", "*"),
                 "*Fonte:* " + adapter.get("link"),
                 self.message_content(adapter).replace("**", "*"),
-                emojize(":mobile_phone:") + " Entre agora no canal t.me/s/noticias_phb"
+                emojize(":mobile_phone:") + f" Entre agora no canal {CHANNEL_LINK}"
                 " e receba notícias como esta em primeira mão no seu Telegram!",
             ]
         )

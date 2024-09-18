@@ -3,7 +3,7 @@ from datetime import date, datetime
 from scrapy import Spider
 from scrapy.http.response.html import HtmlResponse
 
-from noticias_phb.items import NewsLoader, NewsItem
+from open_news.items import NewsLoader, NewsItem
 
 
 class ClassicBloggerSpider(Spider):

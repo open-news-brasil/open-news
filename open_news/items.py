@@ -4,7 +4,7 @@ from scrapy.item import Item, Field
 from itemloaders import ItemLoader
 from itemloaders.processors import TakeFirst, MapCompose, Identity
 
-from noticias_phb.utils import clean_string
+from open_news.utils import clean_string
 
 
 class NewsItem(Item):

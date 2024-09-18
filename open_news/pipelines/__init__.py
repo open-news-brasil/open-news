@@ -3,7 +3,7 @@ from datetime import datetime
 from logging import getLogger
 
 from pysondb import PysonDB
-from noticias_phb.settings import OUTPUT_FILE, OUTPUT_MAX_DAYS_PERSISTENCE, OUTPUT_PATH
+from open_news.settings import OUTPUT_FILE, OUTPUT_MAX_DAYS_PERSISTENCE, OUTPUT_PATH
 
 
 class BaseNewsPipeline(ABC):

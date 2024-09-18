@@ -4,15 +4,16 @@ from pathlib import Path
 
 
 BOT_NAME = "noticias_phb"
+CHANNEL_LINK = "t.me/s/noticias_phb"
 DEBUG = bool(getenv("DEBUG"))
 
-SPIDER_MODULES = ["noticias_phb.spiders"]
-NEWSPIDER_MODULE = "noticias_phb.spiders"
+SPIDER_MODULES = ["open_news.spiders"]
+NEWSPIDER_MODULE = "open_news.spiders"
 
 PROJECT_ROOT = Path(__file__).parent.parent
 MODULE_ROOT = PROJECT_ROOT / BOT_NAME
 
-LOG_FILE = "noticias_phb.log"
+LOG_FILE = "open_news.log"
 LOG_LEVEL = "DEBUG" if DEBUG else "ERROR"
 LOG_FILE_APPEND = True
 
@@ -24,7 +25,7 @@ CLOSESPIDER_TIMEOUT = 4 * 60
 CONCURRENT_ITEMS = 10
 CONCURRENT_REQUESTS = 10
 
-USER_AGENT = "Notícias de Parnaíba (t.me/noticias_phb)"
+USER_AGENT = f"Notícias de Parnaíba ({CHANNEL_LINK})"
 ROBOTSTXT_OBEY = True
 
 TELEGRAM_MAX_CONTENT_SIZE = 790

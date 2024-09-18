@@ -1,6 +1,6 @@
 from itemadapter import ItemAdapter
-from noticias_phb.items import NewsItem
-from noticias_phb.pipelines import BaseNewsPipeline
+from open_news.items import NewsItem
+from open_news.pipelines import BaseNewsPipeline
 
 
 class SavePipeline(BaseNewsPipeline):
