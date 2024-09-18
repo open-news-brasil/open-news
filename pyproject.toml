@@ -21,9 +21,6 @@ ruff = "^0.5.7"
 ipython = "^8.26.0"
 scikit-learn = "^1.5.1"
 
-[tool.taskipy.variables]
-logfile = "noticias_phb.log"
-
 [tool.taskipy.tasks]
 lint = "ruff format && ruff check --fix"
 check = "ruff format --check && ruff check && mypy ."

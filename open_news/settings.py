@@ -38,11 +38,11 @@ TELEGRAM_BOT_TOKENS = [
 ]
 
 ITEM_PIPELINES = {
-    "noticias_phb.pipelines.deduplication.DeduplicationPipeline": 100,
-    "noticias_phb.pipelines.telegram.TelegramPipeline": None
+    "open_news.pipelines.deduplication.DeduplicationPipeline": 100,
+    "open_news.pipelines.telegram.TelegramPipeline": None
     if TELEGRAM_PIPELINE_DISABLED
     else 200,
-    "noticias_phb.pipelines.save.SavePipeline": 300,
+    "open_news.pipelines.save.SavePipeline": 300,
 }
 
 REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
