@@ -11,7 +11,7 @@ class DualPageSpider(Spider):
     today = date.today()
     loader_class = NewsLoader
     
-    news_link_selector = './/h2[contains(@class, "post-title")]//a/@href'
+    news_link_selector = './/h2//a/@href'
     post_selector = '.hentry'
 
     selectors: dict[str, list[str]] = {

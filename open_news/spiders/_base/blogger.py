@@ -14,10 +14,14 @@ class SimplePageBloggerSpider(SimplePageSpider):
 
 
 class DualPageBloggerSpider(DualPageSpider):
+    news_link_selector = './/h2[contains(@class, "post-title")]//a/@href'
     selectors = {
         "title": ['.//h1[contains(@class, "post-title")]/text()'],
         "content": ['.//div[contains(@class, "post-body")]//*/text()'],
         "images": ['.//img/@src'],
         "video": ['.//iframe[contains(@src, "youtube")]/@src'],
-        "posted_at": ['.//*[contains(@class, "published")]/@datetime'],
+        "posted_at": [
+            './/abbr[@class="published"]/@title',
+            './/*[contains(@class, "published")]/@datetime'
+        ],
     }
