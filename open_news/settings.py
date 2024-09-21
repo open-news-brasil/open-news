@@ -3,7 +3,7 @@ from os import getenv
 from pathlib import Path
 
 
-BOT_NAME = "noticias_phb"
+BOT_NAME = "open-news"
 CHANNEL_LINK = "t.me/s/noticias_phb"
 DEBUG = bool(getenv("DEBUG"))
 
@@ -38,11 +38,12 @@ TELEGRAM_BOT_TOKENS = [
 ]
 
 ITEM_PIPELINES = {
-    "open_news.pipelines.deduplication.DeduplicationPipeline": 100,
+    "open_news.pipelines.items_to_ignore.ItemsToIgnorePipeline": 100,
+    "open_news.pipelines.deduplication.DeduplicationPipeline": 200,
     "open_news.pipelines.telegram.TelegramPipeline": None
     if TELEGRAM_PIPELINE_DISABLED
-    else 200,
-    "open_news.pipelines.save.SavePipeline": 300,
+    else 300,
+    "open_news.pipelines.save.SavePipeline": 400,
 }
 
 REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"

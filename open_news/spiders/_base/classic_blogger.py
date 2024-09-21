@@ -3,29 +3,12 @@ from datetime import date, datetime
 from scrapy import Spider
 from scrapy.http.response.html import HtmlResponse
 
-from open_news.items import NewsLoader, NewsItem
+from open_news.loaders import NewsLoader
+from open_news.items import NewsItem
 
 
 class ClassicBloggerSpider(Spider):
     today = date.today()
-    name = "classic_blogger"
-
-    allowed_domains = [
-        "carlsonpessoa.blogspot.com",
-        "portaldocatita.blogspot.com",
-        "clickparnaiba.blogspot.com",
-        "jornaldaparnaiba.com",
-        "phbemnota.com",
-        "plantaoparnaiba24horas.com.br",
-    ]
-    start_urls = [
-        "https://carlsonpessoa.blogspot.com/",
-        "https://portaldocatita.blogspot.com/",
-        "https://clickparnaiba.blogspot.com/",
-        "https://www.jornaldaparnaiba.com/",
-        "https://www.phbemnota.com/",
-        "https://www.plantaoparnaiba24horas.com.br/",
-    ]
 
     def parse(self, response: HtmlResponse):
         for post in response.css(".post.hentry"):

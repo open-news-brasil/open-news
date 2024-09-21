@@ -3,23 +3,12 @@ from datetime import date, datetime
 from scrapy import Spider
 from scrapy.http.response.html import HtmlResponse
 
-from open_news.items import NewsItem, NewsLoader
+from open_news.loaders import NewsLoader
+from open_news.items import NewsItem
 
 
 class ModernBloggerSpider(Spider):
     today = date.today()
-    name = "modern_blogger"
-
-    allowed_domains = [
-        "portaldoaguia.com.br",
-        "portalphb.com.br",
-        "portallitoralnoticias.com.br",
-    ]
-    start_urls = [
-        "https://www.portaldoaguia.com.br/",
-        "https://www.portalphb.com.br/",
-        "https://www.portallitoralnoticias.com.br/",
-    ]
 
     def parse_post(self, response: HtmlResponse):
         post = response.css(".hentry")[0]
