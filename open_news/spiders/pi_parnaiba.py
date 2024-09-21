@@ -1,16 +1,11 @@
-from datetime import date, datetime
-
-from scrapy import Spider
-from scrapy.http.response.html import HtmlResponse
-
-from open_news.items import NewsItem
 from open_news.loaders.pi_parnaiba import CostaNorteNewsLoader, WordpressNewsLoader
-from open_news.spiders._base.classic_blogger import ClassicBloggerSpider
-from open_news.spiders._base.modern_blogger import ModernBloggerSpider
+from open_news.spiders._base.dual_page import DualPageSpider
+from open_news.spiders._base.simple_page import SimplePageSpider
+from open_news.spiders._base.blogger import SimplePageBloggerSpider, DualPageBloggerSpider
 
 
-class PiParnaibaClassicBloggerSpider(ClassicBloggerSpider):
-    name = "pi_parnaiba_classic_blogger"
+class PiParnaibaSimplePageBloggerSpider(SimplePageBloggerSpider):
+    name = "pi_parnaiba_simple_page_blogger"
     allowed_domains = [
         "carlsonpessoa.blogspot.com",
         "portaldocatita.blogspot.com",
@@ -29,8 +24,8 @@ class PiParnaibaClassicBloggerSpider(ClassicBloggerSpider):
     ]
 
 
-class PiParnaibaModernBloggerSpider(ModernBloggerSpider):
-    name = "pi_parnaiba_modern_blogger"
+class PiParnaibaDualPageBloggerSpider(DualPageBloggerSpider):
+    name = "pi_parnaiba_dual_page_blogger"
     allowed_domains = [
         "portaldoaguia.com.br",
         "portalphb.com.br",
@@ -47,62 +42,66 @@ class PiParnaibaModernBloggerSpider(ModernBloggerSpider):
     ]
 
 
-class PiParnaibaBlogDoSilvaSpider(Spider):
-    today = date.today()
+class PiParnaibaBlogDoSilvaSpider(SimplePageSpider):
+    loader_class = WordpressNewsLoader
     name = "pi_parnaiba_blog_do_silva"
 
-    allowed_domains = ["blogdobsilva.com.br"]
+    allowed_domains = ["blogdobsilva.com.br", "www.tribunadeparnaiba.com"]
     start_urls = ["https://blogdobsilva.com.br/"]
 
-    def parse(self, response: HtmlResponse):
-        for post in response.xpath('//article[contains(@id, "post")]'):
-            news = WordpressNewsLoader(NewsItem(), post)
-
-            news.add_xpath("title", './/h2[contains(@class, "title")]//a/text()')
-            news.add_xpath("link", './/h2[contains(@class, "title")]//a/@href')
-            news.add_xpath("content", './/div[contains(@class, "content")]//*/text()')
-            news.add_xpath("images", ".//img/@src")
-            news.add_xpath("video", './/iframe[contains(@src, "youtube")]/@src')
-            news.add_xpath(
-                "posted_at", './/time[contains(@class, "published")]/@datetime'
-            )
-
-            posted_at = news.get_output_value("posted_at")
-            if datetime.fromisoformat(posted_at).date() != self.today:
-                continue
-
-            yield news.load_item()
+    post_selector = 'article.post'
+    selectors = {
+        "title": './/h2[contains(@class, "title")]//a/text()',
+        "link": './/h2[contains(@class, "title")]//a/@href',
+        "content": './/div[contains(@class, "content")]//*/text()',
+        "images": ".//img/@src",
+        "video": './/iframe[contains(@src, "youtube")]/@src',
+        "posted_at": './/time[contains(@class, "published")]/@datetime',
+    }
 
 
-class PiParnaibaCostaNorteSpider(Spider):
-    today = date.today()
+class PiParnaibaCostaNorteSpider(DualPageSpider):
+    loader_class = CostaNorteNewsLoader
     name = "pi_parnaiba_costa_norte"
 
     allowed_domains = ["portalcostanorte.com"]
     start_urls = ["https://portalcostanorte.com/"]
 
-    def parse_post(self, response: HtmlResponse):
-        post = response.css(".hentry")[0]
-        news = CostaNorteNewsLoader(NewsItem(), post)
+    news_link_selector = './/a[./h2]/@href'
+    selectors = {
+        "title": ['.//a[contains(@class, "post-title")]/h1/text()'],
+        "posted_at": ['.//a[@class="post-date"]/b/text()'],
+        "video": ['.//iframe[contains(@src, "youtube")]/@src'],
+        "content": [
+            './/div[contains(@class, "post-content")]//p/text()',
+            './/div[contains(@class, "post-content")]//p/span/text()'
+        ],
+        "images": [
+            './/div[contains(@class, "post-type-content")]//img/@src',
+            './/div[contains(@class, "post-content")]//img/@src'
+        ],
+    }
 
-        news.add_value("link", response.url)
-        news.add_xpath("title", './/a[contains(@class, "post-title")]/h1/text()')
-        news.add_xpath("content", './/div[contains(@class, "post-content")]//p/text()')
-        news.add_xpath(
-            "content", './/div[contains(@class, "post-content")]//p/span/text()'
-        )
-        news.add_xpath(
-            "images", './/div[contains(@class, "post-type-content")]//img/@src'
-        )
-        news.add_xpath("images", './/div[contains(@class, "post-content")]//img/@src')
-        news.add_xpath("video", './/iframe[contains(@src, "youtube")]/@src')
-        news.add_xpath("posted_at", './/a[@class="post-date"]/b/text()')
 
-        posted_at = news.get_output_value("posted_at")
-        if datetime.fromisoformat(posted_at).date() == self.today:
-            yield news.load_item()
+class PiParnaibaTribunaDeParnaibaSpider(DualPageSpider):
+    loader_class = WordpressNewsLoader
+    name = "pi_parnaiba_tribuna_de_parnaiba"
 
-    def parse(self, response: HtmlResponse):
-        for post in response.css(".hentry"):
-            if link := post.xpath(".//a[./h2]/@href").extract_first():
-                yield response.follow(link, self.parse_post)
+    allowed_domains = ["tribunadeparnaiba.com"]
+    start_urls = ["https://www.tribunadeparnaiba.com/"]
+
+    news_link_selector = './/h2//a/@href'
+    selectors = {
+        "title": ['.//h1[contains(@class, "entry-title")]/text()'],
+        "posted_at": ['.//time[contains(@class, "published")]/@datetime'],
+        "video": ['.//iframe[contains(@src, "youtube")]/@src'],
+        "content": [
+            './/div[contains(@class, "entry-content")]//p/text()',
+            './/div[contains(@class, "entry-content")]//p/strong/text()',
+            './/div[contains(@class, "entry-content")]//p/span/text()'
+        ],
+        "images": [
+            './/img[contains(@class, "wp-post-image")]/@src',
+            './/img[contains(@class, "wp-image")]/@src',
+        ],
+    }
