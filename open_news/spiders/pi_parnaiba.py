@@ -47,7 +47,7 @@ class PiParnaibaModernBloggerSpider(ModernBloggerSpider):
     ]
 
 
-class BlogDoSilvaSpider(Spider):
+class PiParnaibaBlogDoSilvaSpider(Spider):
     today = date.today()
     name = "pi_parnaiba_blog_do_silva"
 
@@ -74,7 +74,7 @@ class BlogDoSilvaSpider(Spider):
             yield news.load_item()
 
 
-class CostaNorteSpider(Spider):
+class PiParnaibaCostaNorteSpider(Spider):
     today = date.today()
     name = "pi_parnaiba_costa_norte"
 

@@ -25,6 +25,7 @@ scikit-learn = "^1.5.1"
 lint = "ruff format && ruff check --fix"
 check = "ruff format --check && ruff check && mypy ."
 scrape = "for scrapper in $(scrapy list); do scrapy crawl \"$scrapper\"; done"
+coverage = "python -m open_news.coverage"
 
 [tool.mypy]
 follow_imports = "skip"

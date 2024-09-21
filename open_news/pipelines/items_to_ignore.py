@@ -21,7 +21,7 @@ class ItemsToIgnorePipeline(BaseNewsPipeline):
         "Lojas Mesquita",
         "LENO CALÇADOS",
         "Casa do Pintor",
-        "Promoção"
+        "Promoção",
     ]
 
     def process_item(self, item: NewsItem, spider) -> NewsItem:
