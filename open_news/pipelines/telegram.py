@@ -1,6 +1,7 @@
 from time import sleep
 from urllib.parse import urlparse, quote_plus
 from uuid import uuid4
+from random import shuffle
 
 from emoji import emojize
 from itemadapter import ItemAdapter
@@ -144,6 +145,7 @@ class TelegramPipeline(BaseNewsPipeline):
         adapter = ItemAdapter(item)
         message_text = self.message_text(adapter)
         utils.get_peer_type = get_peer_type_fixed
+        shuffle(TELEGRAM_BOT_TOKENS)
 
         for index, token in enumerate(TELEGRAM_BOT_TOKENS):
             try:

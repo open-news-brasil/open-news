@@ -34,7 +34,7 @@ TELEGRAM_API_ID = getenv("TELEGRAM_API_ID", "")
 TELEGRAM_API_HASH = getenv("TELEGRAM_API_HASH", "")
 TELEGRAM_CHAT_ID = getenv("TELEGRAM_CHAT_ID", "me")
 TELEGRAM_BOT_TOKENS = [
-    token for i in range(4) if (token := getenv(f"TELEGRAM_BOT_REPLICA_{i}_TOKEN"))
+    token for i in range(5) if (token := getenv(f"TELEGRAM_BOT_REPLICA_{i}_TOKEN"))
 ]
 
 ITEM_PIPELINES = {
