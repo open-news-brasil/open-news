@@ -46,7 +46,7 @@ class PiParnaibaBlogDoSilvaSpider(SimplePageSpider):
     loader_class = WordpressNewsLoader
     name = "pi_parnaiba_blog_do_silva"
 
-    allowed_domains = ["blogdobsilva.com.br", "www.tribunadeparnaiba.com"]
+    allowed_domains = ["blogdobsilva.com.br"]
     start_urls = ["https://blogdobsilva.com.br/"]
 
     post_selector = 'article.post'
