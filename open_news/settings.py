@@ -6,8 +6,9 @@ from pathlib import Path
 BOT_NAME = "open-news"
 DEBUG = bool(getenv("DEBUG"))
 
-TELEGRAM_QUEUE_URL = getenv("TELEGRAM_QUEUE_URL")
 TELEGRAM_CHAT_ID = getenv("TELEGRAM_CHAT_ID", "noticias_phb")
+TELEGRAM_QUEUE_URL = getenv("TELEGRAM_QUEUE_URL")
+TELEGRAM_QUEUE_REGION = getenv("TELEGRAM_QUEUE_REGION", "us-east-1")
 TELEGRAM_PIPELINE_DISABLED = bool(getenv("TELEGRAM_PIPELINE_DISABLED"))
 
 SPIDER_MODULES = ["open_news.spiders"]

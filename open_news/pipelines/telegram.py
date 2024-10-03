@@ -6,10 +6,14 @@ from itemadapter import ItemAdapter
 
 from open_news.items import NewsItem
 from open_news.pipelines import BaseNewsPipeline
-from open_news.settings import TELEGRAM_CHAT_ID, TELEGRAM_QUEUE_URL
+from open_news.settings import (
+    TELEGRAM_CHAT_ID,
+    TELEGRAM_QUEUE_URL,
+    TELEGRAM_QUEUE_REGION,
+)
 
 
-sqs = client("sqs")
+sqs = client("sqs", region_name=TELEGRAM_QUEUE_REGION)
 
 
 class TelegramPipeline(BaseNewsPipeline):
