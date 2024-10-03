@@ -10,9 +10,9 @@ from open_news.items import NewsItem
 class DualPageSpider(Spider):
     today = date.today()
     loader_class = NewsLoader
-    
-    news_link_selector = './/h2//a/@href'
-    post_selector = '.hentry'
+
+    news_link_selector = ".//h2//a/@href"
+    post_selector = ".hentry"
 
     selectors: dict[str, list[str]] = {
         "title": [],

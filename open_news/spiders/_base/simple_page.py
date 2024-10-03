@@ -11,8 +11,8 @@ class SimplePageSpider(Spider):
     today = date.today()
     loader_class = NewsLoader
 
-    post_selector = '.post.hentry'
-    
+    post_selector = ".post.hentry"
+
     selectors: dict[str, list[str]] = {
         "title": [],
         "link": [],
@@ -25,7 +25,7 @@ class SimplePageSpider(Spider):
     def parse(self, response: HtmlResponse):
         for post in response.css(self.post_selector):
             news = self.loader_class(NewsItem(), post)
-            
+
             for attribute, selectors in self.selectors.items():
                 for selector in selectors:
                     news.add_xpath(attribute, selector)

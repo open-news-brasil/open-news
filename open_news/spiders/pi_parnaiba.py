@@ -1,7 +1,10 @@
 from open_news.loaders.pi_parnaiba import CostaNorteNewsLoader, WordpressNewsLoader
 from open_news.spiders._base.dual_page import DualPageSpider
 from open_news.spiders._base.simple_page import SimplePageSpider
-from open_news.spiders._base.blogger import SimplePageBloggerSpider, DualPageBloggerSpider
+from open_news.spiders._base.blogger import (
+    SimplePageBloggerSpider,
+    DualPageBloggerSpider,
+)
 
 
 class PiParnaibaSimplePageBloggerSpider(SimplePageBloggerSpider):
@@ -49,14 +52,14 @@ class PiParnaibaBlogDoSilvaSpider(SimplePageSpider):
     allowed_domains = ["blogdobsilva.com.br"]
     start_urls = ["https://blogdobsilva.com.br/"]
 
-    post_selector = 'article.post'
+    post_selector = "article.post"
     selectors = {
-        "title": './/h2[contains(@class, "title")]//a/text()',
-        "link": './/h2[contains(@class, "title")]//a/@href',
-        "content": './/div[contains(@class, "content")]//*/text()',
-        "images": ".//img/@src",
-        "video": './/iframe[contains(@src, "youtube")]/@src',
-        "posted_at": './/time[contains(@class, "published")]/@datetime',
+        "title": ['.//h2[contains(@class, "title")]//a/text()'],
+        "link": ['.//h2[contains(@class, "title")]//a/@href'],
+        "content": ['.//div[contains(@class, "content")]//*/text()'],
+        "images": [".//img/@src"],
+        "video": ['.//iframe[contains(@src, "youtube")]/@src'],
+        "posted_at": ['.//time[contains(@class, "published")]/@datetime'],
     }
 
 
@@ -67,18 +70,18 @@ class PiParnaibaCostaNorteSpider(DualPageSpider):
     allowed_domains = ["portalcostanorte.com"]
     start_urls = ["https://portalcostanorte.com/"]
 
-    news_link_selector = './/a[./h2]/@href'
+    news_link_selector = ".//a[./h2]/@href"
     selectors = {
         "title": ['.//a[contains(@class, "post-title")]/h1/text()'],
         "posted_at": ['.//a[@class="post-date"]/b/text()'],
         "video": ['.//iframe[contains(@src, "youtube")]/@src'],
         "content": [
             './/div[contains(@class, "post-content")]//p/text()',
-            './/div[contains(@class, "post-content")]//p/span/text()'
+            './/div[contains(@class, "post-content")]//p/span/text()',
         ],
         "images": [
             './/div[contains(@class, "post-type-content")]//img/@src',
-            './/div[contains(@class, "post-content")]//img/@src'
+            './/div[contains(@class, "post-content")]//img/@src',
         ],
     }
 
@@ -90,7 +93,7 @@ class PiParnaibaTribunaDeParnaibaSpider(DualPageSpider):
     allowed_domains = ["tribunadeparnaiba.com"]
     start_urls = ["https://www.tribunadeparnaiba.com/"]
 
-    news_link_selector = './/h2//a/@href'
+    news_link_selector = ".//h2//a/@href"
     selectors = {
         "title": ['.//h1[contains(@class, "entry-title")]/text()'],
         "posted_at": ['.//time[contains(@class, "published")]/@datetime'],
@@ -98,7 +101,7 @@ class PiParnaibaTribunaDeParnaibaSpider(DualPageSpider):
         "content": [
             './/div[contains(@class, "entry-content")]//p/text()',
             './/div[contains(@class, "entry-content")]//p/strong/text()',
-            './/div[contains(@class, "entry-content")]//p/span/text()'
+            './/div[contains(@class, "entry-content")]//p/span/text()',
         ],
         "images": [
             './/img[contains(@class, "wp-post-image")]/@src',

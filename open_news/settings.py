@@ -4,8 +4,11 @@ from pathlib import Path
 
 
 BOT_NAME = "open-news"
-CHANNEL_LINK = "t.me/s/noticias_phb"
 DEBUG = bool(getenv("DEBUG"))
+
+TELEGRAM_QUEUE_URL = getenv("TELEGRAM_QUEUE_URL")
+TELEGRAM_CHAT_ID = getenv("TELEGRAM_CHAT_ID", "noticias_phb")
+TELEGRAM_PIPELINE_DISABLED = bool(getenv("TELEGRAM_PIPELINE_DISABLED"))
 
 SPIDER_MODULES = ["open_news.spiders"]
 NEWSPIDER_MODULE = "open_news.spiders"
@@ -21,21 +24,8 @@ OUTPUT_PATH = PROJECT_ROOT / "data"
 OUTPUT_FILE = OUTPUT_PATH / "news.json"
 OUTPUT_MAX_DAYS_PERSISTENCE = timedelta(6)
 
-CLOSESPIDER_TIMEOUT = 4 * 60
-CONCURRENT_ITEMS = 10
-CONCURRENT_REQUESTS = 10
-
-USER_AGENT = f"Notícias de Parnaíba ({CHANNEL_LINK})"
+USER_AGENT = f"Notícias de Parnaíba (t.me/{TELEGRAM_CHAT_ID})"
 ROBOTSTXT_OBEY = True
-
-TELEGRAM_MAX_CONTENT_SIZE = 790
-TELEGRAM_PIPELINE_DISABLED = bool(getenv("TELEGRAM_PIPELINE_DISABLED"))
-TELEGRAM_API_ID = getenv("TELEGRAM_API_ID", "")
-TELEGRAM_API_HASH = getenv("TELEGRAM_API_HASH", "")
-TELEGRAM_CHAT_ID = getenv("TELEGRAM_CHAT_ID", "me")
-TELEGRAM_BOT_TOKENS = [
-    token for i in range(5) if (token := getenv(f"TELEGRAM_BOT_REPLICA_{i}_TOKEN"))
-]
 
 ITEM_PIPELINES = {
     "open_news.pipelines.items_to_ignore.ItemsToIgnorePipeline": 100,
