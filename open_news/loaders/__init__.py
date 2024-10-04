@@ -10,21 +10,34 @@ from open_news.utils import clean_string
 class NewsLoader(ItemLoader):
     default_item_class = NewsItem
     default_input_processor = MapCompose(clean_string)
-    default_output_processor = TakeFirst()
-    images_out = Identity()
-    content_out = Identity()
+    default_output_processor = Identity()
+    posted_at_out = TakeFirst()
+    link_out = TakeFirst()
+    title_out = TakeFirst()
 
     @staticmethod
-    def video_in(values: list[str] | None):
+    def youtube_in(values: list[str] | None):
         if values is None:
-            return None
+            return
+
         for value in values:
-            yield value.removeprefix("//")
+            _, path = value.split("embed/")
+            video_id, _ = path.split("?")
+            yield "https://www.youtube.com/watch?v=" + video_id
+
+    @staticmethod
+    def instagram_in(values: list[str] | None):
+        if values is None:
+            return
+
+        for value in values:
+            publication, _ = value.split("/embed")
+            yield publication
 
     @staticmethod
     def images_in(values: list[str] | None):
         if values is None:
-            return []
+            return
 
         keystrings = ["icon", "demo-image", "agenciabrasil", "gravatar"]
         regex = "|".join(keystrings)
@@ -38,7 +51,7 @@ class NewsLoader(ItemLoader):
     @staticmethod
     def content_in(values: list[str] | None):
         if values is None:
-            return []
+            return
 
         keystrings = ["foto", "fonte"]
         regex = "|".join(keystrings)

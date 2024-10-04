@@ -19,15 +19,16 @@ sqs = client("sqs", region_name=TELEGRAM_QUEUE_REGION)
 class TelegramPipeline(BaseNewsPipeline):
     async def process_item(self, item: NewsItem, spider) -> NewsItem:
         adapter = ItemAdapter(item)
-        video_link = item.get("video")
-        images_links = item.get("images")
         message = {
             "destiny": TELEGRAM_CHAT_ID,
             "title": adapter.get("title"),
             "link": adapter.get("link"),
-            "content": adapter.get("content"),
-            "images": images_links if images_links else [],
-            "youtube": [video_link] if video_link else [],
+            "content": adapter.get("content", []),
+            "images": adapter.get("images", []),
+            "videos": adapter.get("videos", []),
+            "youtube": adapter.get("youtube", []),
+            "instagram": adapter.get("instagram", []),
+            "external_videos": adapter.get("external_videos", []),
         }
 
         try:

@@ -13,9 +13,16 @@ class WordpressNewsLoader(NewsLoader):
 
 class CostaNorteNewsLoader(NewsLoader):
     @staticmethod
+    def content_in(values: list[str] | None):
+        for line in NewsLoader.content_in(values):
+            if "___" in line.lower():
+                break
+            yield line
+
+    @staticmethod
     def posted_at_in(values: list[str] | None):
         if values is None:
-            return []
+            return
         for value in values:
             dt_object = datetime.strptime(value, "%d/%m/%Y")
             yield str(dt_object.isoformat())

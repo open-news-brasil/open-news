@@ -56,9 +56,8 @@ class PiParnaibaBlogDoSilvaSpider(SimplePageSpider):
     selectors = {
         "title": ['.//h2[contains(@class, "title")]//a/text()'],
         "link": ['.//h2[contains(@class, "title")]//a/@href'],
+        "external_videos": ['.//iframe[contains(@src, "if-cdn.com")]/@src'],
         "content": ['.//div[contains(@class, "content")]//*/text()'],
-        "images": [".//img/@src"],
-        "video": ['.//iframe[contains(@src, "youtube")]/@src'],
         "posted_at": ['.//time[contains(@class, "published")]/@datetime'],
     }
 
@@ -74,7 +73,6 @@ class PiParnaibaCostaNorteSpider(DualPageSpider):
     selectors = {
         "title": ['.//a[contains(@class, "post-title")]/h1/text()'],
         "posted_at": ['.//a[@class="post-date"]/b/text()'],
-        "video": ['.//iframe[contains(@src, "youtube")]/@src'],
         "content": [
             './/div[contains(@class, "post-content")]//p/text()',
             './/div[contains(@class, "post-content")]//p/span/text()',
@@ -97,7 +95,6 @@ class PiParnaibaTribunaDeParnaibaSpider(DualPageSpider):
     selectors = {
         "title": ['.//h1[contains(@class, "entry-title")]/text()'],
         "posted_at": ['.//time[contains(@class, "published")]/@datetime'],
-        "video": ['.//iframe[contains(@src, "youtube")]/@src'],
         "content": [
             './/div[contains(@class, "entry-content")]//p/text()',
             './/div[contains(@class, "entry-content")]//p/strong/text()',

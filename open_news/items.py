@@ -2,9 +2,12 @@ from scrapy.item import Item, Field
 
 
 class NewsItem(Item):
-    title = Field()
-    images = Field()
-    video = Field()
-    content = Field()
-    link = Field()
     posted_at = Field()
+    link = Field()
+    title = Field()
+    content = Field()
+    images = Field()
+    videos = Field()
+    external_videos = Field()
+    youtube = Field()
+    instagram = Field()

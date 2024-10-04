@@ -1,5 +1,6 @@
 from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
+
 from open_news.items import NewsItem
 from open_news.pipelines import BaseNewsPipeline
 
@@ -22,6 +23,10 @@ class ItemsToIgnorePipeline(BaseNewsPipeline):
         "LENO CALÇADOS",
         "Casa do Pintor",
         "Promoção",
+        "Horóscopo",
+        "Ótica Dharma",
+        "Delta Connect",
+        "OFERTA PARNAUTO",
     ]
 
     def process_item(self, item: NewsItem, spider) -> NewsItem:
