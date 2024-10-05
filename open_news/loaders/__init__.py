@@ -22,7 +22,7 @@ class NewsLoader(ItemLoader):
 
         for value in values:
             _, path = value.split("embed/")
-            video_id, _ = path.split("?")
+            video_id, *_ = path.split("?")
             yield "https://www.youtube.com/watch?v=" + video_id
 
     @staticmethod

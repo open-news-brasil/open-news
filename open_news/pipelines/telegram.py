@@ -1,8 +1,10 @@
 import json
 
 from uuid import uuid4
+
 from boto3 import client
 from itemadapter import ItemAdapter
+from scrapy.exceptions import DropItem
 
 from open_news.items import NewsItem
 from open_news.pipelines import BaseNewsPipeline
@@ -17,7 +19,7 @@ sqs = client("sqs", region_name=TELEGRAM_QUEUE_REGION)
 
 
 class TelegramPipeline(BaseNewsPipeline):
-    async def process_item(self, item: NewsItem, spider) -> NewsItem:
+    def process_item(self, item: NewsItem, spider) -> NewsItem:
         adapter = ItemAdapter(item)
         message = {
             "destiny": TELEGRAM_CHAT_ID,
@@ -39,8 +41,8 @@ class TelegramPipeline(BaseNewsPipeline):
                 MessageGroupId=str(uuid4()),
             )
 
-        except Exception as exc:
-            raise exc
+        except Exception:
+            raise DropItem(item)
 
         finally:
             return item
