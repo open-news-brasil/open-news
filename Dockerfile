@@ -1,4 +1,4 @@
-FROM --platform=amd64 python:3.11-alpine3.19
+FROM --platform=amd64 python:3.12-alpine3.20
 
 COPY scrapy.cfg /srv
 COPY pyproject.toml /srv
@@ -15,7 +15,7 @@ RUN apk update && \
 
 ENV CRON_EXPRESSION '*/10 * * * *'
 ENV CRON_COMMAND 'cd /srv; task scrape'
-ENV PYTHONPATH '/usr/lib/python3.11/site-packages'
+ENV PYTHONPATH '/usr/lib/python3.12/site-packages'
 
 RUN echo "$CRON_EXPRESSION $CRON_COMMAND" >> /var/spool/cron/crontabs/root
 RUN echo "0 0 * * * rm /srv/open_news.log" >> /var/spool/cron/crontabs/root
