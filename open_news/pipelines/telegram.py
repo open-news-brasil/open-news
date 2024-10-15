@@ -34,10 +34,11 @@ class TelegramPipeline(BaseNewsPipeline):
         }
 
         try:
+            message_json = json.dumps(message)
             sqs.send_message(
                 QueueUrl=TELEGRAM_QUEUE_URL,
-                MessageBody=json.dumps(message),
-                MessageDeduplicationId=abs(hash(str(message))),
+                MessageBody=message_json,
+                MessageDeduplicationId=str(abs(hash(message_json))),
                 MessageGroupId=str(uuid4()),
             )
 
