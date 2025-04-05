@@ -29,12 +29,13 @@ USER_AGENT = f"Notícias de Parnaíba (t.me/{TELEGRAM_CHAT_ID})"
 ROBOTSTXT_OBEY = True
 
 ITEM_PIPELINES = {
-    "open_news.pipelines.items_to_ignore.ItemsToIgnorePipeline": 100,
-    "open_news.pipelines.deduplication.DeduplicationPipeline": 200,
+    "open_news.pipelines.hash.HashCalculatorPipeline": 100,
+    "open_news.pipelines.items_to_ignore.ItemsToIgnorePipeline": 200,
+    "open_news.pipelines.deduplication.DeduplicationPipeline": 300,
     "open_news.pipelines.telegram.TelegramPipeline": None
     if TELEGRAM_PIPELINE_DISABLED
-    else 300,
-    "open_news.pipelines.save.SavePipeline": 400,
+    else 400,
+    "open_news.pipelines.save.SavePipeline": 500,
 }
 
 REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"

@@ -11,3 +11,4 @@ class NewsItem(Item):
     external_videos = Field()
     youtube = Field()
     instagram = Field()
+    hash = Field()

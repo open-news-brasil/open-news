@@ -4,7 +4,7 @@ from scrapy.http.response.html import HtmlResponse
 
 from open_news.loaders import NewsLoader
 from open_news.items import NewsItem
-from open_news.spiders._base import BaseSpider
+from open_news.spiders.base import BaseSpider
 
 
 class DualPageSpider(BaseSpider):

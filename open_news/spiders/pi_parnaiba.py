@@ -1,7 +1,7 @@
 from open_news.loaders.pi_parnaiba import CostaNorteNewsLoader, WordpressNewsLoader
-from open_news.spiders._base.dual_page import DualPageSpider
-from open_news.spiders._base.simple_page import SimplePageSpider
-from open_news.spiders._base.blogger import (
+from open_news.spiders.base.dual_page import DualPageSpider
+from open_news.spiders.base.simple_page import SimplePageSpider
+from open_news.spiders.base.blogger import (
     SimplePageBloggerSpider,
     DualPageBloggerSpider,
 )
